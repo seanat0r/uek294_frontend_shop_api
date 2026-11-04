@@ -13,6 +13,7 @@ declare(strict_types=1);
     <script defer src="/js/config/api.js"></script>
     <script defer src="/js/services/ApiClient.js"></script>
     <script defer src="/js/models/AuthModel.js"></script>
+    <script defer src="/js/views/InteractionView.js"></script>
     <script defer src="/js/views/IndexView.js"></script>
     <script defer src="/js/controllers/AuthController.js"></script>
     <script defer src="/js/controllers/NavigationController.js"></script>

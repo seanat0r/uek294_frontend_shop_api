@@ -41,7 +41,7 @@ class ProductListView {
             // Make the full row clickable. The name link also lets keyboard users open the detail page.
             document.querySelector(`#product-row-${product.sku}`)
                 .addEventListener('click', () => {
-                    productsListElement.closest('.shop-table-scroll').inert = true;
+                    InteractionView.showNavigation(".shop-table-scroll");
                     ProductController.showProductInDetail(product.sku);
                 });
 

@@ -45,8 +45,7 @@ class AuthController {
             return;
         }
 
-        const loadingArea = document.querySelector('#login-form');
-        loadingArea.classList.add('loading');
+        InteractionView.setLoading("#login-form", true);
 
         try {
             const hadLoginSuccess = await AuthModel.authenticate(username, password);
@@ -64,7 +63,7 @@ class AuthController {
                 MessageView.buildInputFormError("form-error", `Server Fehler: ${error}`);
             }
         } finally {
-            loadingArea.classList.remove('loading');
+            InteractionView.setLoading("#login-form", false);
         }
     }
 
@@ -74,8 +73,7 @@ class AuthController {
      * @returns {Promise<void>}
      */
     static async logout() {
-        const loadingArea = document.querySelector('.logout-action');
-        loadingArea.classList.add('loading');
+        InteractionView.setLoading(".logout-action", true);
 
         try {
             const isLogout = await AuthModel.unauthenticate();
@@ -85,7 +83,7 @@ class AuthController {
         } catch (error) {
             alert(`Error: ${error}\nTry again!`);
         } finally {
-            loadingArea.classList.remove('loading');
+            InteractionView.setLoading(".logout-action", false);
         }
     }
 }

@@ -244,10 +244,14 @@ body {
 }
 
 /* Dim shop controls while they are disabled. */
-.shop-form[inert],
-.shop-table-scroll[inert] {
+.shop-form.is-disabled,
+.shop-table-scroll.is-disabled,
+.shop-form.is-navigating,
+.shop-table-scroll.is-navigating {
     opacity: .65;
     filter: grayscale(1);
+    pointer-events: none;
+    interactivity: inert;
 }
 
 .shop-search {

@@ -44,15 +44,6 @@ class ProductController {
         });
 
         // Restore controls when the browser reuses the page after Back navigation.
-        window.addEventListener('pageshow', (event) => {
-            productSearchForm.inert = false;
-
-            const table = document.querySelector('.shop-table-scroll');
-            if (event.persisted && table) {
-                table.inert = false;
-            }
-        });
-
         productSearchForm.addEventListener('submit', (event) => {
             event.preventDefault();
 
@@ -98,8 +89,7 @@ class ProductController {
     static async deleteProduct(event, sku) {
         event.stopPropagation()
 
-        const table = document.querySelector(".shop-table-scroll");
-        table.inert = true;
+        InteractionView.setDisabled(".shop-table-scroll", true);
 
         try {
             const hadSuccess = await ProductModel.deleteProduct(sku);
@@ -110,7 +100,7 @@ class ProductController {
         } catch (error) {
             MessageView.buildError("all-products-info", `Fehler beim Löschen des Produkts: ${error.message}`);
         } finally {
-            table.inert = false;
+            InteractionView.setDisabled(".shop-table-scroll", false);
         }
     }
 
@@ -137,8 +127,7 @@ class ProductController {
             return;
         }
 
-        const form = document.querySelector("#add-product");
-        form.inert = true;
+        InteractionView.setDisabled("#add-product", true);
 
         try {
             const hadSuccesses = await ProductModel.putProduct(data, sku);
@@ -151,7 +140,7 @@ class ProductController {
             MessageView.buildInputFormError("input-product-form-p",
                 `Ein Fehler ist aufgetreten: ${error.message}`);
         } finally {
-            form.inert = false;
+            InteractionView.setDisabled("#add-product", false);
         }
     }
 
@@ -220,7 +209,7 @@ class ProductController {
             return;
         }
 
-        document.querySelector("#search-product").inert = true;
+        InteractionView.showNavigation("#search-product");
         ProductController.showProductInDetail(sku);
     }
 
@@ -293,8 +282,7 @@ class ProductController {
             return;
         }
 
-        const form = document.querySelector("#put-product");
-        form.inert = true;
+        InteractionView.setDisabled("#put-product", true);
 
         try {
             const hadSuccesses = await ProductModel.putProduct(data, sku);
@@ -309,7 +297,7 @@ class ProductController {
             MessageView.buildInputFormError("put-product-form-p",
                 "Konnte nicht gespeichert werden: " + error.message);
         } finally {
-            form.inert = false;
+            InteractionView.setDisabled("#put-product", false);
         }
     }
 }

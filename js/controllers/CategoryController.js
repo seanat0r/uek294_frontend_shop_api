@@ -33,15 +33,6 @@ class CategoryController {
         });
 
         // Restore controls when the browser reuses the page after Back navigation.
-        window.addEventListener('pageshow', (event) => {
-            searchCategoryForm.inert = false;
-
-            const table = document.querySelector('.shop-table-scroll');
-            if (event.persisted && table) {
-                table.inert = false;
-            }
-        });
-
         searchCategoryForm.addEventListener('submit', (event) => {
             event.preventDefault();
 
@@ -88,8 +79,7 @@ class CategoryController {
         // Keep the delete click from opening the detail page through the row handler.
         event.stopPropagation()
 
-        const table = document.querySelector(".shop-table-scroll");
-        table.inert = true;
+        InteractionView.setDisabled(".shop-table-scroll", true);
 
         try {
             const hadSuccess = await CategoryModel.deleteCategory(categoryId);
@@ -100,7 +90,7 @@ class CategoryController {
         } catch (error) {
             MessageView.buildError("all-categories-info", `Fehler beim löschen der Kategorie: ${error.message}`);
         } finally {
-            table.inert = false;
+            InteractionView.setDisabled(".shop-table-scroll", false);
         }
     }
 
@@ -116,8 +106,7 @@ class CategoryController {
             return;
         }
 
-        const form = document.querySelector("#add-category");
-        form.inert = true;
+        InteractionView.setDisabled("#add-category", true);
 
         try {
             const hadSuccesses = await CategoryModel.postCategory(data);
@@ -130,7 +119,7 @@ class CategoryController {
             MessageView.buildInputFormError("input-category-form-p",
                 `Ein Fehler ist aufgetreten: ${error.message}`);
         } finally {
-            form.inert = false;
+            InteractionView.setDisabled("#add-category", false);
         }
     }
 
@@ -144,7 +133,7 @@ class CategoryController {
             return;
         }
 
-        document.querySelector("#search-category").inert = true;
+        InteractionView.showNavigation("#search-category");
         CategoryController.showCategoryInDetail(idQuery);
     }
 
@@ -161,8 +150,7 @@ class CategoryController {
             return;
         }
 
-        const form = document.querySelector("#patch-category");
-        form.inert = true;
+        InteractionView.setDisabled("#patch-category", true);
 
         try {
             const hadSuccesses = await CategoryModel.patchCategory(id, data);
@@ -175,7 +163,7 @@ class CategoryController {
             MessageView.buildInputFormError("input-category-form-p",
                 "Konnte nicht gespeichert werden: " + error.message);
         } finally {
-            form.inert = false;
+            InteractionView.setDisabled("#patch-category", false);
         }
 
     }

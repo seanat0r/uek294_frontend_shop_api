@@ -49,7 +49,7 @@ class CategoryListView {
             // Make the full row clickable. The name link also lets keyboard users open the detail page.
             document.querySelector(`#category-item-${category.category_id}`)
                 .addEventListener('click', () => {
-                    categoriesListElement.closest('.shop-table-scroll').inert = true;
+                    InteractionView.showNavigation(".shop-table-scroll");
                     CategoryController.showCategoryInDetail(category.category_id);
                 });
 

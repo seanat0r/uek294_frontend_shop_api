@@ -12,7 +12,8 @@ $params = $_SERVER['QUERY_STRING'] ?? '';
 
 if (str_contains($params, "category=product")): ?>
     <div id="product-detail-page" class="shop-page">
-        <section id="product-detail-view"></section>
+        <section id="product-detail-view">
+        </section>
         <section>
             <form id="put-product" class="shop-form">
                 <h2>Produkt bearbeiten</h2>
