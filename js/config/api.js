@@ -1,2 +1,2 @@
 const API = "https://campus.csbe.ch/uek294/api/v1";
-let isLoggedIn = false;
+const baseURL = "http://localhost"

@@ -1,3 +1,6 @@
+/**
+ * Calls Authentication Endpoints
+ */
 class AuthModel {
 
     /**
@@ -9,12 +12,14 @@ class AuthModel {
     static async authenticate(username, password) {
         const response = await fetch(API + "/authenticate", {
             method: "POST",
+            credentials: "include",
             body: JSON.stringify({
                 username: username,
                 password: password,
             })
         });
 
+        // username or password wrong
         if (response.status === 401) {
             throw new Error("Wrong username or password");
         }
@@ -23,7 +28,6 @@ class AuthModel {
             throw new Error(`Authentication failed (HTTP ${response.status}).`);
         }
 
-        isLoggedIn = true;
         return true;
     }
 
@@ -42,7 +46,8 @@ class AuthModel {
             throw new Error(`Unauthenticate failed (HTTP ${response.status}).`);
         }
 
-        isLoggedIn = false;
+        console.log(response);
+
         return true;
     }
 }

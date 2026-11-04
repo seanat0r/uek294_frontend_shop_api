@@ -1,18 +1,19 @@
+/**
+ * Handels Authentication
+ */
 class AuthController {
 
+    /**
+     * Set Event listener and
+     */
     static initialize() {
         const logoutButton = document.querySelector("#nav-login");
         const formElement = document.querySelector("#login-form");
 
-        if (logoutButton) {
-            logoutButton.addEventListener("click", () => AuthController.logout());
-        }
+        logoutButton?.addEventListener("click", () => AuthController.logout());
 
-        if (formElement && isLoggedIn) {
-            IndexView.buildNewIndex();
-        } else if (formElement) {
+        if (formElement) {
             formElement.addEventListener("submit", async (event) => {
-                // prevent to send the form normally
                 event.preventDefault();
 
                 const formInputPassword = document.querySelector("#input-password")?.value;
@@ -24,38 +25,57 @@ class AuthController {
 
     }
 
+    /**
+     * Validate Userinput, send Data and give Feedback to user
+     * @param username Text Value
+     * @param password Text Value
+     * @returns {Promise<void>}
+     */
     static async login(username, password) {
-        IndexView.closeAllErrors();
+        MessageView.closeAllErrors(["input-username-p", "input-password-p", "form-error"]);
 
         if (!password || typeof password !== "string") {
-            IndexView.buildErrorPassword("Bitte geben Sie ein gültiges Passwort ein.")
+            MessageView.buildInputFormError("input-username-p", "Bitte geben Sie ein gültiges Passwort ein.")
             return;
         }
 
         if (!username || typeof username !== "string") {
-            IndexView.buildErrorUsername("Bitte geben Sie ein gültiges Nutzername ein.");
+            MessageView.buildInputFormError("input-password-p", "Bitte geben Sie ein gültiges Nutzername ein.");
             return;
         }
+
+        const loadingArea = document.querySelector('#login-form');
+        loadingArea.classList.add('loading');
 
         try {
             const hadLoginSuccess = await AuthModel.authenticate(username, password);
             if (!hadLoginSuccess) {
-                IndexView.buildErrorForm("Passwort oder Nutzername falsch!")
+                MessageView.buildInputFormError("form-error", "Passwort oder Nutzername falsch!")
                 return;
             }
 
-            IndexView.closeAllErrors();
+            MessageView.closeAllErrors(["input-username-p", "input-password-p", "form-error"]);
             IndexView.buildNewIndex();
         } catch (error) {
             if (error.message === "Wrong username or password") {
-                IndexView.buildErrorForm("Passwort oder Nutzername falsch!")
+                MessageView.buildInputFormError("form-error", "Passwort oder Nutzername falsch!")
             } else {
-                IndexView.buildErrorForm(`Server Fehler: ${error}`);
+                MessageView.buildInputFormError("form-error", `Server Fehler: ${error}`);
             }
+        } finally {
+            loadingArea.classList.remove('loading');
         }
     }
 
+
+    /**
+     * Log out user and redirect to index.php
+     * @returns {Promise<void>}
+     */
     static async logout() {
+        const loadingArea = document.querySelector('.logout-action');
+        loadingArea.classList.add('loading');
+
         try {
             const isLogout = await AuthModel.unauthenticate();
             if (isLogout) {
@@ -63,6 +83,8 @@ class AuthController {
             }
         } catch (error) {
             alert(`Error: ${error}\nTry again!`);
+        } finally {
+            loadingArea.classList.remove('loading');
         }
     }
 }

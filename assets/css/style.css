@@ -1,3 +1,433 @@
-#input-username-p, #input-password-p, #form-error {
+:root {
+    --deep-blue: #102746;
+    --hover-blue: #20446e;
+    --page-background: #eef3f9;
+    --white: #fff;
+    --nav-border: #8399b5;
+    --focus-blue: #a9d4ff;
+    --card-border: #d4deeb;
+    --input-border: #8194ac;
+    --error-background: #fcebef;
+    --error-text: #82232e;
+    --loading-background: #eef3f9d9;
+    --success-green: green;
+    --transparent: transparent;
+}
+
+#input-username-p, #input-password-p, #form-error, #input-category-active-p,
+#input-category-name-p, #input-category-form-p {
     display: none;
+}
+
+.form-success {
+    background-color: var(--success-green);
+}
+
+.success {
+    color: var(--success-green);
+}
+
+.loading {
+    cursor: wait;
+    opacity: 0.5;
+}
+
+body {
+    margin: 0;
+    background: var(--page-background);
+}
+
+/* Navigation */
+.site-header,
+.login-page {
+    font: 1rem/1.5 system-ui, sans-serif;
+}
+
+.site-header {
+    background: var(--deep-blue);
+    color: var(--white);
+}
+
+.header-inner {
+    max-width: 74rem;
+    margin: auto;
+    padding: .75rem 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem 1rem;
+}
+
+.brand {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.site-header nav {
+    margin-left: auto;
+}
+
+.site-header ul,
+.login-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.site-header ul {
+    justify-content: flex-end;
+}
+
+.site-header button,
+.login-card button,
+.login-links a {
+    display: inline-block;
+    padding: .55rem .75rem;
+    border: 1px solid var(--transparent);
+    border-radius: .5rem;
+    background: var(--deep-blue);
+    color: var(--white);
+    font: inherit;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.site-header button {
+    background: var(--transparent);
+}
+
+.site-header button:hover,
+.login-card button:hover,
+.login-links a:hover {
+    background: var(--hover-blue);
+}
+
+#nav-login {
+    border-color: var(--nav-border);
+}
+
+.site-header button:focus-visible {
+    outline: 3px solid var(--focus-blue);
+    outline-offset: 2px;
+}
+
+/* Login */
+.login-body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.login-page {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    color: var(--deep-blue);
+}
+
+.login-card {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 26rem;
+    padding: 1.5rem;
+    border: 1px solid var(--card-border);
+    border-radius: 1rem;
+    background: var(--white);
+    text-align: center;
+}
+
+.login-card h1 {
+    margin: 0 0 1rem;
+}
+
+.login-card form {
+    display: grid;
+    gap: 1rem;
+}
+
+.login-card label {
+    display: block;
+    margin-bottom: .35rem;
+    font-weight: bold;
+}
+
+.login-card input {
+    box-sizing: border-box;
+    width: 100%;
+    padding: .55rem .75rem;
+    border: 1px solid var(--input-border);
+    border-radius: .5rem;
+    font: inherit;
+}
+
+.login-card form p {
+    margin: 0;
+    padding: .65rem;
+    border-radius: .5rem;
+    background: var(--error-background);
+    color: var(--error-text);
+}
+
+.login-links {
+    justify-content: center;
+}
+
+/* Ladeanzeige für Login und Abmelden */
+#login-form.loading,
+.logout-action.loading {
+    position: relative;
+    opacity: 1;
+}
+
+#login-form.loading > *,
+.logout-action.loading > * {
+    pointer-events: none;
+    interactivity: inert;
+}
+
+#login-form.loading::after,
+.logout-action.loading::after {
+    content: "Wird geladen ...";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border-radius: .5rem;
+    background: var(--loading-background);
+    color: var(--deep-blue);
+    font-size: .875rem;
+    font-weight: bold;
+    cursor: wait;
+}
+
+.logout-action.loading::after {
+    content: "Abmelden ...";
+}
+
+/* Übersichten und Detailseiten */
+.shop-page {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+    color: var(--deep-blue);
+    font: 1.125rem/1.5 system-ui, sans-serif;
+}
+
+.shop-page h1 {
+    margin: 0 0 1rem;
+}
+
+.shop-page h2,
+.shop-page p {
+    margin: 0;
+}
+
+.shop-form,
+.shop-table-section {
+    padding: 1.25rem;
+    border: 1px solid var(--card-border);
+    border-radius: .75rem;
+    background: var(--white);
+}
+
+.shop-form {
+    display: grid;
+    gap: 1rem;
+    justify-items: start;
+}
+
+.shop-form[inert],
+.shop-table-scroll[inert] {
+    opacity: .65;
+    filter: grayscale(1);
+}
+
+.shop-search {
+    margin-top: 2rem;
+}
+
+.shop-table-section,
+#product-detail-view + section,
+#category-detail-view + section {
+    margin-top: 1rem;
+}
+
+.shop-field {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 24rem) minmax(0, 1fr);
+    align-items: start;
+    gap: .35rem .9rem;
+}
+
+.shop-field label {
+    grid-column: 1 / -1;
+    font-weight: bold;
+}
+
+.shop-field input,
+.shop-field textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: .55rem .75rem;
+    border: 1px solid var(--input-border);
+    border-radius: .5rem;
+    color: var(--deep-blue);
+    font: inherit;
+}
+
+.shop-field textarea {
+    min-height: 7rem;
+    resize: vertical;
+}
+
+.shop-check {
+    display: flex;
+    align-items: center;
+}
+
+.shop-check input {
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+    accent-color: var(--deep-blue);
+}
+
+.shop-page p:empty,
+#product-detail-view:empty,
+#category-detail-view:empty {
+    display: none;
+}
+
+.shop-field p,
+#input-product-form-p,
+#product-search-form-p,
+#put-product-form-p,
+#input-category-form-p,
+#category-search-form-p,
+.shop-table-section .error {
+    padding: .4rem .65rem;
+    border-radius: .4rem;
+    background: var(--error-background);
+    color: var(--error-text);
+    overflow-wrap: anywhere;
+}
+
+#input-product-form-p.form-success,
+#put-product-form-p.form-success,
+#input-category-form-p.form-success {
+    background: var(--page-background);
+    color: var(--success-green);
+}
+
+.shop-page button {
+    padding: .5rem .85rem;
+    border: 1px solid var(--transparent);
+    border-radius: .45rem;
+    background: var(--deep-blue);
+    color: var(--white);
+    font: inherit;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.shop-page button:hover {
+    background: var(--hover-blue);
+}
+
+.shop-table-scroll {
+    margin-top: .85rem;
+    overflow-x: auto;
+    border: 1px solid var(--card-border);
+    border-radius: .5rem;
+}
+
+.shop-table-section table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.shop-table-section th,
+.shop-table-section td {
+    padding: .65rem .85rem;
+    border-bottom: 1px solid var(--card-border);
+}
+
+.shop-table-section th,
+.shop-table-section tbody tr:hover {
+    background: var(--page-background);
+}
+
+
+.shop-table-section tbody tr {
+    cursor: pointer;
+}
+
+.shop-name::after {
+    content: "↗";
+    margin-left: .35rem;
+}
+
+.shop-table-section .shop-delete {
+    background: var(--white);
+    border-color: var(--error-text);
+    color: var(--error-text);
+}
+
+.shop-table-section .shop-delete:hover {
+    background: var(--error-background);
+}
+
+.product-details {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 1.25rem;
+    margin-top: 1rem;
+}
+
+.shop-properties {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: .55rem 1rem;
+    margin: 0;
+}
+
+.shop-properties dt {
+    font-weight: bold;
+}
+
+.shop-properties dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.product-details img {
+    max-width: 100%;
+    max-height: 24rem;
+    border-radius: .5rem;
+}
+
+@media (max-width: 42rem) {
+    .shop-field,
+    .product-details {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .shop-check p {
+        min-width: 0;
+    }
+
+    .shop-check input {
+        flex-shrink: 0;
+    }
 }
