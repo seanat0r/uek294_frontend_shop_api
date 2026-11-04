@@ -1,12 +1,13 @@
 /**
- * Handels Authentication
+ * Handles sign-in and sign-out interactions.
  */
 class AuthController {
 
     /**
-     * Set Event listener and
+     * Connects the login form and logout button where they are available.
      */
     static initialize() {
+        // The login form and logout button are on different pages.
         const logoutButton = document.querySelector("#nav-login");
         const formElement = document.querySelector("#login-form");
 
@@ -26,21 +27,21 @@ class AuthController {
     }
 
     /**
-     * Validate Userinput, send Data and give Feedback to user
-     * @param username Text Value
-     * @param password Text Value
+     * Shows field errors or sends the credentials to the API.
+     * @param {string} username Username entered in the login form.
+     * @param {string} password Password entered in the login form.
      * @returns {Promise<void>}
      */
     static async login(username, password) {
         MessageView.closeAllErrors(["input-username-p", "input-password-p", "form-error"]);
 
         if (!password || typeof password !== "string") {
-            MessageView.buildInputFormError("input-username-p", "Bitte geben Sie ein gültiges Passwort ein.")
+            MessageView.buildInputFormError("input-password-p", "Bitte geben Sie ein gültiges Passwort ein.")
             return;
         }
 
         if (!username || typeof username !== "string") {
-            MessageView.buildInputFormError("input-password-p", "Bitte geben Sie ein gültiges Nutzername ein.");
+            MessageView.buildInputFormError("input-username-p", "Bitte geben Sie ein gültiges Nutzername ein.");
             return;
         }
 
@@ -69,7 +70,7 @@ class AuthController {
 
 
     /**
-     * Log out user and redirect to index.php
+     * Returns to the login page after the API ends the session.
      * @returns {Promise<void>}
      */
     static async logout() {

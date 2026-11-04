@@ -1,5 +1,5 @@
 /**
- * Navigation Controller
+ * Connects the shared navigation buttons to their pages.
  */
 class NavigationController {
     static initialize() {

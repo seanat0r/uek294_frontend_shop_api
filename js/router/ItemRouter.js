@@ -14,6 +14,7 @@ class ItemRouter {
             return;
         }
 
+        // A recognised type without an ID leads back to its list.
         if (category === "product" && !id) {
             window.location.href = "./product.php";
             return;

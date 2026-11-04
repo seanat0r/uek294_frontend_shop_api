@@ -56,6 +56,7 @@ class CategoryDetailView {
         view.innerHTML = "";
         view.innerHTML = viewHTMLString;
 
+        // Prefill the edit form with the values shown in the detail view.
         const activeFormInput = document.querySelector('#patch-category-active');
         const nameFormInput = document.querySelector('#patch-category-name');
 

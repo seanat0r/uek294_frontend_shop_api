@@ -1,9 +1,9 @@
 class CategoryModel {
 
     /**
-     * Throws Error if the HTTP status not in 2xx range
-     * @param res Response Obj from fetch
-     * @returns {boolean} if successfully return true
+     * Maps API status codes to errors the controller can handle.
+     * @param {Response} res Response from fetch.
+     * @returns {boolean} True for a successful response. Throws otherwise.
      */
     static handleResponse(res) {
         if (res.status === 400) {
@@ -27,8 +27,8 @@ class CategoryModel {
 
 
     /**
-     * GET request to categorize; Get all categories
-     * @returns {Promise<any>} returns all categories
+     * Fetches the category list.
+     * @returns {Promise<Object[]>} Categories returned by the API.
      */
     static async getAllCategories() {
         const response = await fetch(API + "/categories", {
@@ -44,9 +44,9 @@ class CategoryModel {
     }
 
     /**
-     * GET request to category/id; Get one specific Category
-     * @param id id to request
-     * @returns {Promise<any>} returns the category
+     * Fetches one category by ID.
+     * @param {number|string} id Category ID.
+     * @returns {Promise<Object|Array>} Category record, with an empty array as a fallback.
      */
     static async getCategory(id) {
         const response = await fetch(API + "/category/" + id, {
@@ -60,9 +60,9 @@ class CategoryModel {
     }
 
     /**
-     * POST request to category; create a new category
-     * @param body body request; needs key: active and name
-     * @returns {Promise<boolean>}
+     * Creates a category.
+     * @param {{active: number, name: string}} body Name and active status (1 or 0).
+     * @returns {Promise<boolean>} Resolves to true when the API accepts the request.
      */
     static async postCategory(body) {
         const response = await fetch(API + "/category", {
@@ -77,9 +77,9 @@ class CategoryModel {
     }
 
     /**
-     * DELETE request to category/id; delete a specific category
-     * @param id Category to delete
-     * @returns {Promise<boolean>} true if deleted
+     * Deletes the category with the given ID.
+     * @param {number|string} id ID of the category to delete.
+     * @returns {Promise<boolean>} Resolves to true when the API accepts the request.
      */
     static async deleteCategory(id) {
         const response = await fetch(API + "/category/" + id, {
@@ -93,10 +93,10 @@ class CategoryModel {
     }
 
     /**
-     * PATCH request to category
-     * @param id category to delete
-     * @param body body request; needs key: active and name
-     * @returns {Promise<boolean>}
+     * Updates the category with the given ID.
+     * @param {number|string} id ID of the category to update.
+     * @param {{active: number, name: string}} body Name and active status (1 or 0).
+     * @returns {Promise<boolean>} Resolves to true when the API accepts the request.
      */
     static async patchCategory(id, body) {
         const response = await fetch(API + "/category/" + id, {

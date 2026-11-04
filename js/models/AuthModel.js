@@ -1,13 +1,13 @@
 /**
- * Calls Authentication Endpoints
+ * Calls the API endpoints that manage the session.
  */
 class AuthModel {
 
     /**
-     * Authenticates the user. Send a POST to the backend. Backend set automatically the cookie.
-     * @param username Username for the authentication
-     * @param password Password for authentication
-     * @returns {Promise<boolean>} returns true if authenticate
+     * Starts an API session and lets the browser accept the session cookie.
+     * @param {string} username Username for the API account.
+     * @param {string} password Password for the API account.
+     * @returns {Promise<boolean>} Resolves to true on success. Rejects on failure.
      */
     static async authenticate(username, password) {
         const response = await fetch(API + "/authenticate", {
@@ -19,7 +19,7 @@ class AuthModel {
             })
         });
 
-        // username or password wrong
+        // Give the login form a specific error for rejected credentials.
         if (response.status === 401) {
             throw new Error("Wrong username or password");
         }
@@ -33,8 +33,8 @@ class AuthModel {
 
 
     /**
-     * Logout the user by sending a POST request to the Backend. The cookie gets invalid/ removed in Backend.
-     * @returns {Promise<boolean>}
+     * Sends the session cookie so the API can end the current session.
+     * @returns {Promise<boolean>} Resolves to true on success. Rejects on failure.
      */
     static async unauthenticate() {
         const response = await fetch(API + "/unauthenticate", {

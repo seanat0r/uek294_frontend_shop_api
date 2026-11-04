@@ -7,6 +7,7 @@ $is_index = false;
 
 require_once __DIR__ . '/include/header.php';
 
+// Render the matching edit form. The browser loads the record through the API.
 $params = $_SERVER['QUERY_STRING'] ?? '';
 
 if (str_contains($params, "category=product")): ?>

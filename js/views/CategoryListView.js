@@ -1,8 +1,8 @@
 class CategoryListView {
 
     /**
-     * All Categories List could not be loaded, show a error message.
-     * @param text to display
+     * Replaces the category list with an error message.
+     * @param {string} text Reason the list could not load.
      */
     static getAllCategoriesFailed(text) {
         const categoriesList = document.querySelector('#all-categories-section');
@@ -16,19 +16,25 @@ class CategoryListView {
     }
 
     /**
-     * Builds the row for each categorie
-     * @param allCategoriesList
+     * Renders the categories and connects the detail and delete actions.
+     * @param {Object[]} allCategoriesList Categories returned by the API.
      */
     static buildAllCategoriesList(allCategoriesList) {
         const categoriesListElement = document.querySelector('#category-list');
         categoriesListElement.innerHTML = '';
 
         for (const category of allCategoriesList) {
+            const url = new URL('/item.php', baseURL);
+            url.searchParams.set('category', "category");
+            url.searchParams.set('id', category.category_id);
+
             const htmlString =
                 `
                 <tr id="category-item-${category.category_id}">
                     <td>${category.category_id}</td>
-                    <td class="shop-name">${category.name}</td>
+                    <td class="shop-name">
+                        <a href="${url}">${category.name}</a>
+                    </td>
                     <td>${Number(category.active) === 1 ? "aktiv" : "inaktiv"}</td>
                     <td>
                         <button type="button" class="shop-delete" id="category-item-delete-${category.category_id}">
@@ -40,7 +46,7 @@ class CategoryListView {
 
             categoriesListElement.insertAdjacentHTML('beforeend', htmlString);
 
-            // select the hole <tr> and add an EventListener and select the <button> and add an EventListener
+            // Make the full row clickable. The name link also lets keyboard users open the detail page.
             document.querySelector(`#category-item-${category.category_id}`)
                 .addEventListener('click', () => {
                     categoriesListElement.closest('.shop-table-scroll').inert = true;

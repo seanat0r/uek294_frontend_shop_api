@@ -1,30 +1,27 @@
 /**
- * Handels Category
+ * Connects the category list, search and detail forms to the API.
  */
 class CategoryController {
     /**
-     * Initialize the Site with data and Event listeners
+     * Loads the category list and registers its form handlers.
      */
     static async initialize() {
         const addCategoryForm = document.querySelector('#add-category');
         const searchCategoryForm = document.querySelector('#search-category');
 
-        // Category list and create/search forms only exist on category.php.
+        // This controller also runs on the detail page, which has no category list.
         if (!document.querySelector('#category-list')) {
             return;
         }
 
-        // fill the Categories List with data
         await CategoryController.getAllCategories();
 
 
-        // add Event listener
         addCategoryForm.addEventListener('submit', (event) => {
             event.preventDefault();
 
-            // if element not exits or was not checked get 0, otherwise 1
+            // The API expects 1 or 0 for the active status.
             const formIsActiveValue = document.querySelector('#add-category-active')?.checked ? 1 : 0;
-            // if element not exits get null otherwise extract the value with trim
             const formCategoryNameValue = document.querySelector('#add-category-name')?.value.trim();
 
             const dataToAdd = {
@@ -35,6 +32,7 @@ class CategoryController {
             CategoryController.addCategory(dataToAdd);
         });
 
+        // Restore controls when the browser reuses the page after Back navigation.
         window.addEventListener('pageshow', (event) => {
             searchCategoryForm.inert = false;
 
@@ -56,7 +54,7 @@ class CategoryController {
     }
 
     /**
-     * Get all Categories
+     * Renders the category list or shows why it could not load.
      * @returns {Promise<void>}
      */
     static async getAllCategories() {
@@ -69,8 +67,8 @@ class CategoryController {
     }
 
     /**
-     * Redirect the User to the details Site
-     * @param categoryId id of the category
+     * Opens the permalink for a category.
+     * @param {number|string} categoryId Category ID.
      */
     static showCategoryInDetail(categoryId) {
         const url = new URL('/item.php', baseURL);
@@ -81,12 +79,13 @@ class CategoryController {
     }
 
     /**
-     * Delete the given Category
-     * @param event Event listener Event Object
-     * @param categoryId Category ID to delete
+     * Deletes a category and refreshes the list on success.
+     * @param {MouseEvent} event Click on the delete button.
+     * @param {number|string} categoryId Category ID.
      * @returns {Promise<void>}
      */
     static async deleteCategory(event, categoryId) {
+        // Keep the delete click from opening the detail page through the row handler.
         event.stopPropagation()
 
         const table = document.querySelector(".shop-table-scroll");
@@ -106,8 +105,8 @@ class CategoryController {
     }
 
     /**
-     * Add a new Category
-     * @param data Object that has the data to add. Needs to have the key active and name.
+     * Creates a category and refreshes the list on success.
+     * @param {{active: number, name: string}} data Name and active status (1 or 0).
      * @returns {Promise<void>}
      */
     static async addCategory(data) {
@@ -117,7 +116,6 @@ class CategoryController {
             return;
         }
 
-        // add the new category
         const form = document.querySelector("#add-category");
         form.inert = true;
 
@@ -126,7 +124,6 @@ class CategoryController {
             if (hadSuccesses) {
                 MessageView.buildInputFormSuccess("input-category-form-p",
                     `Die Kategorie ${data.name} erfolgreich hinzugefügt!`);
-                // load list new
                 await CategoryController.reloadAllCategoriesList();
             }
         } catch (error) {
@@ -138,9 +135,8 @@ class CategoryController {
     }
 
     /**
-     * Validate and do a search (via redirect @CategoryController.showCategoryInDetail)
-     * From a Form
-     * @param idQuery ID to search from the user
+     * Validates the search input and opens the matching detail page.
+     * @param {number} idQuery Category ID entered in the search form.
      */
     static searchCategory(idQuery) {
         if (!idQuery || typeof idQuery !== "number" || idQuery <= 0) {
@@ -153,9 +149,9 @@ class CategoryController {
     }
 
     /**
-     * Update the Category
-     * @param id the category to update
-     * @param data the data to change. Object with the key active and name
+     * Saves the category and refreshes its detail view on success.
+     * @param {number|string} id ID of the category to update.
+     * @param {{active: number, name: string}} data Name and active status (1 or 0).
      * @returns {Promise<void>}
      */
     static async patchCategory(id, data) {
@@ -186,13 +182,11 @@ class CategoryController {
 
 
     /**
-     * Validate the user Input
-     * @param data object with the key active and name
-     * @returns {boolean} true if OK, false if not
+     * Shows the first validation error next to the relevant field.
+     * @param {{active: number, name: string}} data Name and active status (1 or 0).
+     * @returns {boolean} True if the data passes validation.
      */
     static validateUserInput(data) {
-        // check the value active
-        // checks for value has a value, value is a number, value is not equal to 0 or 1
         if (typeof data.active !== "number" || (data.active !== 0 && data.active !== 1)) {
             MessageView.buildInputFormError("input-category-active-p", "Bitte geben Sie ein gültiges Aktiv-Wert ein.")
             return false;
@@ -208,7 +202,7 @@ class CategoryController {
 
 
     /**
-     * Reload all categories in the list
+     * Refreshes the category list after a change.
      * @returns {Promise<void>}
      */
     static async reloadAllCategoriesList() {
@@ -217,8 +211,8 @@ class CategoryController {
 
 
     /**
-     * Initialize the detail Category site
-     * @param categoryId the category to show
+     * Loads the category and connects its edit form.
+     * @param {number|string} categoryId Category ID.
      * @returns {Promise<void>}
      */
     static async showDetailCategory(categoryId) {
@@ -241,8 +235,8 @@ class CategoryController {
     }
 
     /**
-     * Get one Category
-     * @param categoryId the category id
+     * Renders one category or shows a message for the failed request.
+     * @param {number|string} categoryId Category ID.
      * @returns {Promise<void>}
      */
     static async getOneCategory(categoryId) {

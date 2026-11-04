@@ -72,6 +72,7 @@ class ProductDetailView {
         view.innerHTML = "";
         view.innerHTML = viewHTMLString;
 
+        // Prefill the edit form with the values shown in the detail view.
         document.querySelector('#put-product-sku-p').textContent =
             `SKU: ${data.sku ?? sku}`;
 

@@ -1,10 +1,10 @@
 /**
- * Handels Index View.
+ * Renders the login page after authentication.
  */
 class IndexView {
 
     /**
-     * Replace Login Form with Successfully Login
+     * Replaces the login form with links to products and categories.
      */
     static buildNewIndex() {
         const indexForm = document.getElementById("index-form");

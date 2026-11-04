@@ -1,13 +1,13 @@
 class ProductListView {
     static getAllProductFailed(text) {
-        const categoriesList = document.querySelector('#all-products-section');
+        const productsSection = document.querySelector('#all-products-section');
         const htmlString =
             `
             <h2>Liste konnte nicht geladen werden.</h2>
             <p>${text}</p>
             `;
-        categoriesList.innerHTML = "";
-        categoriesList.innerHTML = htmlString;
+        productsSection.innerHTML = "";
+        productsSection.innerHTML = htmlString;
     }
 
     static buildAllProductList(productsList) {
@@ -15,11 +15,15 @@ class ProductListView {
         productsListElement.innerHTML = '';
 
         for (const product of productsList) {
+            const url = new URL('/item.php', baseURL);
+            url.searchParams.set('category', "product");
+            url.searchParams.set('id', product.sku);
+
             const htmlString =
                 `
-                <tr id="category-item-${product.sku}">
+                <tr id="product-row-${product.sku}">
                     <td>${product.sku}</td>
-                    <td class="shop-name">${product.name}</td>
+                    <td class="shop-name"><a href="${url}">${product.name}</a></td>
                     <td>${product.id_category}</td>
                     <td>${product.price}</td>
                     <td>${product.stock}</td>
@@ -34,8 +38,8 @@ class ProductListView {
 
             productsListElement.insertAdjacentHTML('beforeend', htmlString);
 
-            // select the hole <tr> and add an EventListener and select the <button> and add an EventListener
-            document.querySelector(`#category-item-${product.sku}`)
+            // Make the full row clickable. The name link also lets keyboard users open the detail page.
+            document.querySelector(`#product-row-${product.sku}`)
                 .addEventListener('click', () => {
                     productsListElement.closest('.shop-table-scroll').inert = true;
                     ProductController.showProductInDetail(product.sku);

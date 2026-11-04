@@ -1,15 +1,15 @@
 class MessageView {
 
     /**
-     * Hide all Error Messages, that was given
-     * @param elementIdArray expect an array with string. That should hide. ID are without #
+     * Clears and hides the specified messages.
+     * @param {string[]} elementIdArray Message element IDs without the leading #.
      */
     static closeAllErrors(elementIdArray) {
 
         for (const elementId of elementIdArray) {
             const currentElement = document.querySelector(`#${elementId}`);
 
-            // skip if the element does not exits
+            // Forms can share a list of IDs even when some message elements are absent.
             if (!currentElement) {
                 continue;
             }
@@ -19,9 +19,9 @@ class MessageView {
     }
 
     /**
-     * Build an Error Display
-     * @param elementId the Element where to show the text. ID are without #
-     * @param text the value, that get displayed
+     * Shows an error next to a field or below the form.
+     * @param {string} elementId Message element ID without the leading #.
+     * @param {string} text Message shown to the user.
      */
     static buildInputFormError(elementId, text) {
         const pElement = document.querySelector(`#${elementId}`);
@@ -30,9 +30,9 @@ class MessageView {
     }
 
     /**
-     * Show Form Success Message
-     * @param elementId the Element where to show the text. ID are without #
-     * @param text the value, that get displayed
+     * Shows a success message in the form.
+     * @param {string} elementId Message element ID without the leading #.
+     * @param {string} text Message shown to the user.
      */
     static buildInputFormSuccess(elementId, text) {
         const pElement = document.querySelector(`#${elementId}`);
@@ -42,9 +42,9 @@ class MessageView {
     }
 
     /**
-     * Show generally Success Message
-     * @param elementId the Element where to show the text. ID are without #
-     * @param text the value, that get displayed
+     * Shows a success message outside a form.
+     * @param {string} elementId Message element ID without the leading #.
+     * @param {string} text Message shown to the user.
      */
     static buildSuccess(elementId, text) {
         const pElement = document.querySelector(`#${elementId}`);
@@ -54,9 +54,9 @@ class MessageView {
     }
 
     /**
-     * Show generally Success Message
-     * @param elementId the Element where to show the text. ID are without #
-     * @param text the value, that get displayed
+     * Shows an error message outside a form.
+     * @param {string} elementId Message element ID without the leading #.
+     * @param {string} text Message shown to the user.
      */
     static buildError(elementId, text) {
         const pElement = document.querySelector(`#${elementId}`);

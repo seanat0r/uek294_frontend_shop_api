@@ -179,7 +179,7 @@ body {
     justify-content: center;
 }
 
-/* Ladeanzeige für Login und Abmelden */
+/* Loading overlay for login and logout */
 #login-form.loading,
 .logout-action.loading {
     position: relative;
@@ -211,7 +211,7 @@ body {
     content: "Abmelden ...";
 }
 
-/* Übersichten und Detailseiten */
+/* List and detail pages */
 .shop-page {
     max-width: 72rem;
     margin: 0 auto;
@@ -243,6 +243,7 @@ body {
     justify-items: start;
 }
 
+/* Dim shop controls while they are disabled. */
 .shop-form[inert],
 .shop-table-scroll[inert] {
     opacity: .65;
@@ -374,6 +375,15 @@ body {
 .shop-name::after {
     content: "↗";
     margin-left: .35rem;
+}
+
+.shop-name a {
+    text-decoration: none
+}
+
+.shop-delete:hover {
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
 }
 
 .shop-table-section .shop-delete {

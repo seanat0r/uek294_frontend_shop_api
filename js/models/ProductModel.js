@@ -1,8 +1,8 @@
 class ProductModel {
     /**
-     * Throws Error if the HTTP status not in 2xx range
-     * @param res Response Obj from fetch
-     * @returns {boolean} if successfully return true
+     * Maps API status codes to errors the controller can handle.
+     * @param {Response} res Response from fetch.
+     * @returns {boolean} True for a successful response. Throws otherwise.
      */
     static handleResponse(res) {
         if (res.status === 400) {
@@ -25,8 +25,8 @@ class ProductModel {
     }
 
     /**
-     * GET request to products; Get all products
-     * @returns {Promise<any>} returns all product
+     * Fetches the product list.
+     * @returns {Promise<Object[]>} Products returned by the API.
      */
     static async getAllProducts() {
         const response = await fetch(API + "/products", {
@@ -42,11 +42,11 @@ class ProductModel {
     }
 
     /**
-     * GET request to product/id; Get one specific product
-     * @param sku sku to request
-     * @returns {Promise<any>} returns the product
+     * Fetches one product by SKU. The detail view uses product_id from this response.
+     * @param {string} sku Product SKU.
+     * @returns {Promise<Object|Array>} Product record, with an empty array as a fallback.
      */
-    static async getCategory(sku) {
+    static async getProduct(sku) {
         const response = await fetch(API + "/product/" + sku, {
             method: "GET",
             credentials: "include",
@@ -58,10 +58,10 @@ class ProductModel {
     }
 
     /**
-     * PUT request. Update or Create a new Product
-     * @param product
-     * @param sku
-     * @returns {Promise<boolean>}
+     * Creates or updates the product at the given SKU.
+     * @param {Object} product Product fields to save.
+     * @param {string} sku Product SKU.
+     * @returns {Promise<boolean>} Resolves to true when the API accepts the request.
      */
     static async putProduct(product, sku = null) {
         const response = await fetch(API + "/product/" + sku, {
@@ -76,11 +76,11 @@ class ProductModel {
     }
 
     /**
-     * DELETE product to product/sku; delete a specific product
-     * @param sku product to delete
-     * @returns {Promise<boolean>} true if deleted
+     * Deletes the product with the given SKU.
+     * @param {string} sku Product SKU.
+     * @returns {Promise<boolean>} Resolves to true when the API accepts the request.
      */
-    static async deleteCategory(sku) {
+    static async deleteProduct(sku) {
         const response = await fetch(API + "/product/" + sku, {
             method: "DELETE",
             credentials: "include",

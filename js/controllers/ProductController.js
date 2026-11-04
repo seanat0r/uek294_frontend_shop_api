@@ -1,16 +1,16 @@
 /**
- * Handles product-related interactions.
+ * Connects the product list, search and detail forms to the API.
  */
 class ProductController {
     /**
-     * Loads the product page and registers its event listeners.
+     * Loads the product list and registers its form handlers.
      * @returns {Promise<void>}
      */
     static async initialize() {
         const productAddForm = document.querySelector('#add-product');
         const productSearchForm = document.querySelector('#search-product');
 
-        // Product list and create/search forms only exist on product.php.
+        // This controller also runs on the detail page, which has no product list.
         if (!document.querySelector('#product-list')) {
             return;
         }
@@ -20,7 +20,7 @@ class ProductController {
         productAddForm.addEventListener('submit', (event) => {
             event.preventDefault();
 
-            // get the value of the forms input element. Translate the Data with trim or in 1/0
+            // Convert form values to the types expected by the API.
             const sku = document.querySelector("#add-product-sku")?.value.trim();
             const name = document.querySelector("#add-product-name")?.value.trim();
             const idCategory = Number(document.querySelector("#add-product-category")?.value);
@@ -43,6 +43,7 @@ class ProductController {
             ProductController.addProduct(sku, productData);
         });
 
+        // Restore controls when the browser reuses the page after Back navigation.
         window.addEventListener('pageshow', (event) => {
             productSearchForm.inert = false;
 
@@ -63,7 +64,7 @@ class ProductController {
     }
 
     /**
-     * Loads all products and passes them to the product list view.
+     * Renders the product list or shows why it could not load.
      * @returns {Promise<void>}
      */
     static async getAllProducts() {
@@ -76,8 +77,8 @@ class ProductController {
     }
 
     /**
-     * Redirects to the detail view for the given product.
-     * @param {string} sku SKU of the product to display.
+     * Opens the permalink for a product.
+     * @param {string} sku Product SKU.
      * @returns {void}
      */
     static showProductInDetail(sku) {
@@ -89,10 +90,9 @@ class ProductController {
     }
 
     /**
-     * Deletes the product with the given SKU.
-     *
-     * @param {Event} event Click event from the delete button.
-     * @param {string} sku SKU of the product to delete.
+     * Deletes a product and refreshes the list on success.
+     * @param {MouseEvent} event Click on the delete button.
+     * @param {string} sku Product SKU.
      * @returns {Promise<void>}
      */
     static async deleteProduct(event, sku) {
@@ -102,22 +102,22 @@ class ProductController {
         table.inert = true;
 
         try {
-            const hadSuccess = await ProductModel.deleteCategory(sku);
+            const hadSuccess = await ProductModel.deleteProduct(sku);
             if (hadSuccess) {
                 MessageView.buildSuccess("all-products-info", `Produkt mit der SKU ${sku} wurde gelöscht!`);
                 await ProductController.reloadAllProductsList();
             }
         } catch (error) {
-            MessageView.buildError("all-products-info", `Fehler beim löschen der Kategorie: ${error.message}`);
+            MessageView.buildError("all-products-info", `Fehler beim Löschen des Produkts: ${error.message}`);
         } finally {
             table.inert = false;
         }
     }
 
     /**
-     * Validates and creates a product.
-     * @param {string} sku SKU for the product.
-     * @param {Object} data Product data to submit.
+     * Saves a product under the entered SKU and refreshes the list.
+     * @param {string} sku Product SKU.
+     * @param {Object} data Product fields for PUT /product/{sku}.
      * @returns {Promise<void>}
      */
     static async addProduct(sku, data) {
@@ -137,7 +137,6 @@ class ProductController {
             return;
         }
 
-        // add the new product
         const form = document.querySelector("#add-product");
         form.inert = true;
 
@@ -146,7 +145,6 @@ class ProductController {
             if (hadSuccesses) {
                 MessageView.buildInputFormSuccess("input-product-form-p",
                     `Die Produkt-SKU ${sku} erfolgreich hinzugefügt!`);
-                // load list new
                 await ProductController.reloadAllProductsList();
             }
         } catch (error) {
@@ -158,17 +156,15 @@ class ProductController {
     }
 
     /**
-     * Validate each field. All field get checks for its datatype and is not null.
-     * Numbers get also check for greater or equal to zero
-     * @param sku SKU of the product
-     * @param data Object with all the keys from the OpenAPI Doc (https://campus.csbe.ch/uek294/api/v1/public/swagger-ui/index.html#/)
-     * from the PUT /prodocut/{sku} section
-     * @param elementPrefix Prefix for the right ID, to select the right element. Should be "input" or "put"
-     * @returns {boolean} true if OK, otherwise false
+     * Shows the first validation error next to the relevant field.
+     * @param {string} sku Product SKU.
+     * @param {Object} data Product fields for PUT /product/{sku}.
+     * @param {string} [elementPrefix="input"] Use "input" for creation or "put" for editing.
+     * @returns {boolean} True if the data passes validation.
      */
     static validateUserInput(sku, data, elementPrefix = "input") {
 
-        // "put" prefix doesn't set the SKU, skip it
+        // The edit form uses the SKU from the detail URL.
         if (elementPrefix !== "put" && (!sku || typeof sku !== "string")) {
             MessageView.buildInputFormError(`${elementPrefix}-product-sku-p`, "Bitte geben Sie eine gültige SKU ein.");
             return false;
@@ -194,7 +190,7 @@ class ProductController {
             return false;
         }
 
-        // TODO: reason for isFinite
+        // Number.isFinite also rejects NaN and Infinity.
         if (!Number.isFinite(data.price) || data.price < 0) {
             MessageView.buildInputFormError(`${elementPrefix}-product-price-p`, "Bitte geben Sie einen gültigen Preis ein.");
             return false;
@@ -214,8 +210,8 @@ class ProductController {
     }
 
     /**
-     * Validates a SKU and opens the matching product detail view.
-     * @param {string} sku SKU entered by the user.
+     * Validates the search input and opens the matching detail page.
+     * @param {string} sku SKU entered in the search form.
      * @returns {void}
      */
     static searchProduct(sku) {
@@ -229,7 +225,7 @@ class ProductController {
     }
 
     /**
-     * Reloads the product list.
+     * Refreshes the product list after a change.
      * @returns {Promise<void>}
      */
     static async reloadAllProductsList() {
@@ -244,7 +240,6 @@ class ProductController {
         putProductForm.addEventListener('submit', (event) => {
             event.preventDefault();
 
-            // get the value of the forms input element. Translate the Data with trim or in 1/0
             const name = document.querySelector("#put-product-name")?.value.trim();
             const idCategory = Number(document.querySelector("#put-product-category")?.value);
             const description = document.querySelector("#put-product-description")?.value.trim();
@@ -269,7 +264,7 @@ class ProductController {
 
     static async getOneProduct(sku, data) {
         try {
-            const data = await ProductModel.getCategory(sku);
+            const data = await ProductModel.getProduct(sku);
             ProductDetailView.buildSite(sku, data);
         } catch (error) {
             if (error.message === "Not authorized") {
@@ -304,7 +299,9 @@ class ProductController {
         try {
             const hadSuccesses = await ProductModel.putProduct(data, sku);
             if (hadSuccesses) {
-                ProductDetailView.buildSite(sku, data);
+                // Reload the saved product to get its product_id, which the edit form does not submit.
+                const savedProduct = await ProductModel.getProduct(sku);
+                ProductDetailView.buildSite(sku, savedProduct);
                 MessageView.buildInputFormSuccess("put-product-form-p",
                     `Die Produkt SKU ${sku} erfolgreich geändert!`);
             }
