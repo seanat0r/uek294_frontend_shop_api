@@ -1,18 +1,18 @@
-import { baseURL } from "./config/api.js";
-import { ItemRouter } from "./router/ItemRouter.js";
-import { AuthModel } from "./models/AuthModel.js";
-import { ProductModel } from "./models/ProductModel.js";
-import { CategoryModel } from "./models/CategoryModel.js";
-import { IndexView } from "./views/IndexView.js";
-import { NavigationView } from "./views/NavigationView.js";
-import { ProductListView } from "./views/ProductListView.js";
-import { ProductDetailView } from "./views/ProductDetailView.js";
-import { CategoryListView } from "./views/CategoryListView.js";
-import { CategoryDetailView } from "./views/CategoryDetailView.js";
-import { AuthController } from "./controllers/AuthController.js";
-import { NavigationController } from "./controllers/NavigationController.js";
-import { ProductController } from "./controllers/ProductController.js";
-import { CategoryController } from "./controllers/CategoryController.js";
+import {baseURL} from "./config/api.js";
+import {ItemRouter} from "./router/ItemRouter.js";
+import {AuthModel} from "./models/AuthModel.js";
+import {ProductModel} from "./models/ProductModel.js";
+import {CategoryModel} from "./models/CategoryModel.js";
+import {IndexView} from "./views/IndexView.js";
+import {NavigationView} from "./views/NavigationView.js";
+import {ProductListView} from "./views/ProductListView.js";
+import {ProductDetailView} from "./views/ProductDetailView.js";
+import {CategoryListView} from "./views/CategoryListView.js";
+import {CategoryDetailView} from "./views/CategoryDetailView.js";
+import {AuthController} from "./controllers/AuthController.js";
+import {NavigationController} from "./controllers/NavigationController.js";
+import {ProductController} from "./controllers/ProductController.js";
+import {CategoryController} from "./controllers/CategoryController.js";
 
 /**
  * Connects the shared objects and starts the current page.
@@ -52,10 +52,10 @@ export class App {
         const authController = AuthController.getInstance(navigationView, indexView, authModel);
         const navigationController = NavigationController.getInstance(navigationView);
         const productController = ProductController.getInstance(
-            productModel, productListView, productDetailView
+            productModel, productListView, productDetailView, navigationView
         );
         const categoryController = CategoryController.getInstance(
-            categoryModel, categoryListView, categoryDetailView
+            categoryModel, categoryListView, categoryDetailView, navigationView
         );
 
         authController.initialize();

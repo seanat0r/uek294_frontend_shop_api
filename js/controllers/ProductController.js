@@ -1,6 +1,6 @@
-import { MessageView } from "../views/MessageView.js";
-import { InteractionView } from "../views/InteractionView.js";
-import { App } from "../app.js";
+import {MessageView} from "../views/MessageView.js";
+import {InteractionView} from "../views/InteractionView.js";
+import {App} from "../app.js";
 
 /**
  * Connects the product list, search and detail forms to the API.
@@ -37,14 +37,21 @@ export class ProductController {
     detailView;
 
     /**
+     * View for logout Button.
+     * @type {NavigationView}
+     */
+    navigationView
+
+    /**
      * Receives the dependencies when the shared instance is created.
      * @param {ProductModel} productModel Model used to load and save records.
      * @param {ProductListView} listView View for the overview forms and table.
      * @param {ProductDetailView} detailView View for record details and edits.
+     * @param navigationView View for logout Button.
      * @param {symbol} key Constructor key supplied by getInstance.
      * @throws {Error} The constructor was called without the private key.
      */
-    constructor(productModel, listView, detailView, key) {
+    constructor(productModel, listView, detailView, navigationView, key) {
         if (key !== ProductController.#key) {
             throw new Error("Use ProductController.getInstance().");
         }
@@ -52,6 +59,7 @@ export class ProductController {
         this.productModel = productModel;
         this.listView = listView;
         this.detailView = detailView;
+        this.navigationView = navigationView;
 
         ProductController.#instance = this;
     }
@@ -61,13 +69,15 @@ export class ProductController {
      * @param {ProductModel} productModel Model used to load and save records.
      * @param {ProductListView} listView View for the overview forms and table.
      * @param {ProductDetailView} detailView View for record details and edits.
+     * @param navigationView View for logout Button.
      * @returns {ProductController} Shared instance for this page.
      */
-    static getInstance(productModel, listView, detailView) {
+    static getInstance(productModel, listView, detailView, navigationView) {
         return ProductController.#instance ??= new ProductController(
             productModel,
             listView,
             detailView,
+            navigationView,
             ProductController.#key,
         );
     }
@@ -90,11 +100,15 @@ export class ProductController {
     async getAllProducts() {
         try {
             const data = await this.productModel.getAllProducts();
+            this.navigationView.logoutText();
             this.listView.buildAllProductList(data, {
                 onOpen: (sku) => this.showProductInDetail(sku),
                 onDelete: (sku) => this.deleteProduct(sku),
             });
         } catch (error) {
+            if (error.message === "Not authorized") {
+                this.navigationView.loginText();
+            }
             this.listView.getAllProductFailed(error.message);
         }
     }
@@ -266,9 +280,11 @@ export class ProductController {
     async getOneProduct(sku) {
         try {
             const data = await this.productModel.getProduct(sku);
+            this.navigationView.logoutText();
             this.detailView.buildSite(sku, data);
         } catch (error) {
             if (error.message === "Not authorized") {
+                this.navigationView.loginText();
                 this.detailView.buildNotAuthorized();
             } else if (error.message === "Not found") {
                 this.detailView.buildNotFound(sku);

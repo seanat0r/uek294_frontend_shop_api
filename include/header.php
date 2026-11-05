@@ -15,7 +15,7 @@ declare(strict_types=1);
 <body data-page="<?= htmlspecialchars($page_controller_type) ?>"<?= $page_controller_type === 'index' ? ' class="login-body"' : '' ?>>
 <header class="site-header">
     <div class="header-inner">
-        <p class="brand">Shop API</p>
+        <p class="brand"><a href="/index.php">Shop API</a></p>
         <nav>
             <ul>
                 <li>

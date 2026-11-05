@@ -37,14 +37,21 @@ export class CategoryController {
     detailView;
 
     /**
+     * View for logout Button.
+     * @type {NavigationView}
+     */
+    navigationView;
+
+    /**
      * Receives the dependencies when the shared instance is created.
      * @param {CategoryModel} categoryModel Model used to load and save records.
      * @param {CategoryListView} listView View for the overview forms and table.
      * @param {CategoryDetailView} detailView View for record details and edits.
+     * @param {NavigationView} navigationView View for logout Button.
      * @param {symbol} key Constructor key supplied by getInstance.
      * @throws {Error} The constructor was called without the private key.
      */
-    constructor(categoryModel, listView, detailView, key) {
+    constructor(categoryModel, listView, detailView, navigationView, key) {
         if (key !== CategoryController.#key) {
             throw new Error("Use CategoryController.getInstance().");
         }
@@ -52,6 +59,7 @@ export class CategoryController {
         this.categoryModel = categoryModel;
         this.listView = listView;
         this.detailView = detailView;
+        this.navigationView = navigationView;
 
         CategoryController.#instance = this;
     }
@@ -61,13 +69,15 @@ export class CategoryController {
      * @param {CategoryModel} categoryModel Model used to load and save records.
      * @param {CategoryListView} listView View for the overview forms and table.
      * @param {CategoryDetailView} detailView View for record details and edits.
+     * @param {NavigationView} navigationView View for logout Button.
      * @returns {CategoryController} Shared instance for this page.
      */
-    static getInstance(categoryModel, listView, detailView) {
+    static getInstance(categoryModel, listView, detailView, navigationView) {
         return CategoryController.#instance ??= new CategoryController(
             categoryModel,
             listView,
             detailView,
+            navigationView,
             CategoryController.#key,
         );
     }
@@ -90,11 +100,15 @@ export class CategoryController {
     async getAllCategories() {
         try {
             const data = await this.categoryModel.getAllCategories();
+            this.navigationView.logoutText()
             this.listView.buildAllCategoriesList(data, {
                 onOpen: (id) => this.showCategoryInDetail(id),
                 onDelete: (id) => this.deleteCategory(id),
             });
         } catch (error) {
+            if (error.message === "Not authorized") {
+                this.navigationView.loginText();
+            }
             this.listView.getAllCategoriesFailed(error.message);
         }
     }
@@ -252,9 +266,11 @@ export class CategoryController {
     async getOneCategory(categoryId) {
         try {
             const data = await this.categoryModel.getCategory(categoryId);
+            this.navigationView.logoutText()
             this.detailView.buildSite(categoryId, data);
         } catch (error) {
             if (error.message === "Not authorized") {
+                this.navigationView.loginText();
                 this.detailView.buildNotAuthorized();
             } else if (error.message === "Not found") {
                 this.detailView.buildNotFound(categoryId);

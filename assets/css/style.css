@@ -64,6 +64,14 @@ body {
     font-weight: bold;
 }
 
+.brand a {
+    text-decoration: none;
+}
+
+.brand a:visited, .brand a:active {
+    color: inherit;
+}
+
 .site-header nav {
     margin-left: auto;
 }
@@ -208,7 +216,7 @@ body {
 }
 
 .logout-action.loading::after {
-    content: "Abmelden ...";
+    content: "...";
 }
 
 /* List and detail pages */

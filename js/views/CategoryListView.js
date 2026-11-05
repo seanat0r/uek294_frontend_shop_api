@@ -51,7 +51,7 @@ export class CategoryListView {
                 active: document.querySelector("#add-category-active")?.checked ? 1 : 0,
                 name: document.querySelector("#add-category-name")?.value.trim(),
             };
-            
+
 
             return onCreate(data);
         });
@@ -122,7 +122,6 @@ export class CategoryListView {
 
                     InteractionView.showNavigation(".shop-table-scroll");
                     actions.onOpen(category.category_id);
-
                 });
 
             document.getElementById(`category-item-delete-${category.category_id}`)

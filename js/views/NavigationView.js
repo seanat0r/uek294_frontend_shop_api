@@ -53,4 +53,22 @@ export class NavigationView {
     bindLogout(onLogout) {
         document.querySelector("#nav-login")?.addEventListener("click", () => onLogout());
     }
+
+    /**
+     * Change the loginbutton Text to "Anmelden".
+     */
+    loginText() {
+        const loginButton = document.querySelector("#nav-login");
+        loginButton.textContent = "";
+        loginButton.textContent = "Anmelden";
+    }
+
+    /**
+     * Change the loginbutton Text to "Abmelden".
+     */
+    logoutText() {
+        const loginButton = document.querySelector("#nav-login");
+        loginButton.textContent = "";
+        loginButton.textContent = "Abmelden";
+    }
 }
