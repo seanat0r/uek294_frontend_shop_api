@@ -1,29 +1,93 @@
+import {MessageView} from "../views/MessageView.js";
+import {InteractionView} from "../views/InteractionView.js";
+
 /**
  * Handles sign-in and sign-out interactions.
  */
-class AuthController {
+export class AuthController {
+    /**
+     * Shared instance for the current browser page.
+     * @type {AuthController|null}
+     */
+    static #instance = null;
 
     /**
-     * Connects the login form and logout button where they are available.
+     * Key used to restrict construction to getInstance.
+     * @type {symbol}
      */
-    static initialize() {
-        // The login form and logout button are on different pages.
-        const logoutButton = document.querySelector("#nav-login");
-        const formElement = document.querySelector("#login-form");
+    static #key = Symbol();
 
-        logoutButton?.addEventListener("click", () => AuthController.logout());
+    /**
+     * View containing the logout button.
+     * @type {NavigationView}
+     */
+    navigationView;
 
-        if (formElement) {
-            formElement.addEventListener("submit", async (event) => {
-                event.preventDefault();
+    /**
+     * View containing the login form.
+     * @type {IndexView}
+     */
+    indexView;
 
-                const formInputPassword = document.querySelector("#input-password")?.value;
-                const formInputUsername = document.querySelector("#input-username")?.value;
+    /**
+     * Model used to start and end the API session.
+     * @type {AuthModel}
+     */
+    authModel;
 
-                await AuthController.login(formInputUsername, formInputPassword);
-            });
+    /**
+     * Receives the dependencies when the shared instance is created.
+     * @param {NavigationView} navigationView View containing the logout button.
+     * @param {IndexView} indexView View containing the login form.
+     * @param {AuthModel} authModel Model used to start and end the API session.
+     * @param {symbol} key Constructor key supplied by getInstance.
+     * @throws {Error} The constructor was called without the private key.
+     */
+    constructor(navigationView, indexView, authModel, key) {
+        if (key !== AuthController.#key) {
+            throw new Error("Use AuthController.getInstance().");
         }
 
+        this.navigationView = navigationView;
+        this.indexView = indexView;
+        this.authModel = authModel;
+
+        AuthController.#instance = this;
+    }
+
+    /**
+     * Returns the shared instance, creating it on the first call.
+     * @param {NavigationView} navigationView View containing the logout button.
+     * @param {IndexView} indexView View containing the login form.
+     * @param {AuthModel} authModel Model used to start and end the API session.
+     * @returns {AuthController} Shared instance for this page.
+     */
+    static getInstance(navigationView, indexView, authModel) {
+        return AuthController.#instance ??= new AuthController(
+            navigationView,
+            indexView,
+            authModel,
+            AuthController.#key,
+        );
+    }
+
+    /**
+     * Returns to the login page after the API ends the session.
+     * @returns {Promise<void>}
+     */
+    async logout() {
+        InteractionView.setLoading(".logout-action", true);
+
+        try {
+            const isLogout = await this.authModel.unauthenticate();
+            if (isLogout) {
+                window.location.href = "/index.php";
+            }
+        } catch (error) {
+            alert(`Error: ${error}\nTry again!`);
+        } finally {
+            InteractionView.setLoading(".logout-action", false);
+        }
     }
 
     /**
@@ -32,9 +96,10 @@ class AuthController {
      * @param {string} password Password entered in the login form.
      * @returns {Promise<void>}
      */
-    static async login(username, password) {
+    async login(username, password) {
         MessageView.closeAllErrors(["input-username-p", "input-password-p", "form-error"]);
 
+        // validation
         if (!password || typeof password !== "string") {
             MessageView.buildInputFormError("input-password-p", "Bitte geben Sie ein gültiges Passwort ein.")
             return;
@@ -48,14 +113,14 @@ class AuthController {
         InteractionView.setLoading("#login-form", true);
 
         try {
-            const hadLoginSuccess = await AuthModel.authenticate(username, password);
+            const hadLoginSuccess = await this.authModel.authenticate(username, password);
             if (!hadLoginSuccess) {
                 MessageView.buildInputFormError("form-error", "Passwort oder Nutzername falsch!")
                 return;
             }
 
             MessageView.closeAllErrors(["input-username-p", "input-password-p", "form-error"]);
-            IndexView.buildNewIndex();
+            this.indexView.buildNewIndex();
         } catch (error) {
             if (error.message === "Wrong username or password") {
                 MessageView.buildInputFormError("form-error", "Passwort oder Nutzername falsch!")
@@ -67,25 +132,14 @@ class AuthController {
         }
     }
 
-
     /**
-     * Returns to the login page after the API ends the session.
-     * @returns {Promise<void>}
+     * Connects the login form and logout button where they are available.
      */
-    static async logout() {
-        InteractionView.setLoading(".logout-action", true);
-
-        try {
-            const isLogout = await AuthModel.unauthenticate();
-            if (isLogout) {
-                window.location.href = "/index.php";
-            }
-        } catch (error) {
-            alert(`Error: ${error}\nTry again!`);
-        } finally {
-            InteractionView.setLoading(".logout-action", false);
-        }
+    initialize() {
+        // Keep this controller as the receiver when the view calls the callbacks.
+        this.indexView.bindLogin(
+            (username, password) => this.login(username, password)
+        );
+        this.navigationView.bindLogout(() => this.logout());
     }
 }
-
-AuthController.initialize();

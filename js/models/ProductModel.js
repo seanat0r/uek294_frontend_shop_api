@@ -1,10 +1,49 @@
-class ProductModel {
+import { API } from "../config/api.js";
+
+/**
+ * Calls the shop API to read and change products by SKU.
+ */
+export class ProductModel {
+    /**
+     * Shared instance for the current browser page.
+     * @type {ProductModel|null}
+     */
+    static #instance = null;
+
+    /**
+     * Key used to restrict construction to getInstance.
+     * @type {symbol}
+     */
+    static #key = Symbol();
+
+    /**
+     * Creates the shared model through its private constructor key.
+     * @param {symbol} key Constructor key supplied by getInstance.
+     * @throws {Error} The constructor was called without the private key.
+     */
+    constructor(key) {
+        if (key !== ProductModel.#key) {
+            throw new Error("Use ProductModel.getInstance().");
+        }
+
+        ProductModel.#instance = this;
+    }
+
+    /**
+     * Returns the shared instance, creating it on the first call.
+     * @returns {ProductModel} Shared instance for this page.
+     */
+    static getInstance() {
+        return ProductModel.#instance ??= new ProductModel(ProductModel.#key);
+    }
+
     /**
      * Maps API status codes to errors the controller can handle.
      * @param {Response} res Response from fetch.
-     * @returns {boolean} True for a successful response. Throws otherwise.
+     * @returns {boolean} True for a successful response.
+     * @throws {Error} The API returned an unsuccessful HTTP status.
      */
-    static handleResponse(res) {
+    handleResponse(res) {
         if (res.status === 400) {
             throw new Error("Validation failed");
         }
@@ -28,7 +67,7 @@ class ProductModel {
      * Fetches the product list.
      * @returns {Promise<Object[]>} Products returned by the API.
      */
-    static async getAllProducts() {
+    async getAllProducts() {
         const response = await fetch(API + "/products", {
             method: "GET",
             credentials: "include",
@@ -36,7 +75,7 @@ class ProductModel {
 
         console.log(response);
 
-        ProductModel.handleResponse(response);
+        this.handleResponse(response);
 
         return await response.json();
     }
@@ -46,13 +85,13 @@ class ProductModel {
      * @param {string} sku Product SKU.
      * @returns {Promise<Object|Array>} Product record, with an empty array as a fallback.
      */
-    static async getProduct(sku) {
+    async getProduct(sku) {
         const response = await fetch(API + "/product/" + sku, {
             method: "GET",
             credentials: "include",
         });
 
-        ProductModel.handleResponse(response);
+        this.handleResponse(response);
 
         return await response.json() || [];
     }
@@ -63,14 +102,14 @@ class ProductModel {
      * @param {string} sku Product SKU.
      * @returns {Promise<boolean>} Resolves to true when the API accepts the request.
      */
-    static async putProduct(product, sku = null) {
+    async putProduct(product, sku = null) {
         const response = await fetch(API + "/product/" + sku, {
             method: "PUT",
             credentials: "include",
             body: JSON.stringify(product),
         });
 
-        ProductModel.handleResponse(response);
+        this.handleResponse(response);
 
         return true;
     }
@@ -80,13 +119,13 @@ class ProductModel {
      * @param {string} sku Product SKU.
      * @returns {Promise<boolean>} Resolves to true when the API accepts the request.
      */
-    static async deleteProduct(sku) {
+    async deleteProduct(sku) {
         const response = await fetch(API + "/product/" + sku, {
             method: "DELETE",
             credentials: "include",
         });
 
-        ProductModel.handleResponse(response);
+        this.handleResponse(response);
 
         return true;
     }

@@ -1,59 +1,101 @@
+import {MessageView} from "../views/MessageView.js";
+import {InteractionView} from "../views/InteractionView.js";
+import {App} from "../app.js";
+
 /**
  * Connects the category list, search and detail forms to the API.
  */
-class CategoryController {
+export class CategoryController {
     /**
-     * Loads the category list and registers its form handlers.
+     * Shared instance for the current browser page.
+     * @type {CategoryController|null}
      */
-    static async initialize() {
-        const addCategoryForm = document.querySelector('#add-category');
-        const searchCategoryForm = document.querySelector('#search-category');
+    static #instance = null;
 
-        // This controller also runs on the detail page, which has no category list.
-        if (!document.querySelector('#category-list')) {
-            return;
+    /**
+     * Key used to restrict construction to getInstance.
+     * @type {symbol}
+     */
+    static #key = Symbol();
+
+    /**
+     * Model used to load and save records.
+     * @type {CategoryModel}
+     */
+    categoryModel;
+
+    /**
+     * View for the overview forms and table.
+     * @type {CategoryListView}
+     */
+    listView;
+
+    /**
+     * View for record details and edits.
+     * @type {CategoryDetailView}
+     */
+    detailView;
+
+    /**
+     * Receives the dependencies when the shared instance is created.
+     * @param {CategoryModel} categoryModel Model used to load and save records.
+     * @param {CategoryListView} listView View for the overview forms and table.
+     * @param {CategoryDetailView} detailView View for record details and edits.
+     * @param {symbol} key Constructor key supplied by getInstance.
+     * @throws {Error} The constructor was called without the private key.
+     */
+    constructor(categoryModel, listView, detailView, key) {
+        if (key !== CategoryController.#key) {
+            throw new Error("Use CategoryController.getInstance().");
         }
 
-        await CategoryController.getAllCategories();
+        this.categoryModel = categoryModel;
+        this.listView = listView;
+        this.detailView = detailView;
 
+        CategoryController.#instance = this;
+    }
 
-        addCategoryForm.addEventListener('submit', (event) => {
-            event.preventDefault();
+    /**
+     * Returns the shared instance, creating it on the first call.
+     * @param {CategoryModel} categoryModel Model used to load and save records.
+     * @param {CategoryListView} listView View for the overview forms and table.
+     * @param {CategoryDetailView} detailView View for record details and edits.
+     * @returns {CategoryController} Shared instance for this page.
+     */
+    static getInstance(categoryModel, listView, detailView) {
+        return CategoryController.#instance ??= new CategoryController(
+            categoryModel,
+            listView,
+            detailView,
+            CategoryController.#key,
+        );
+    }
 
-            // The API expects 1 or 0 for the active status.
-            const formIsActiveValue = document.querySelector('#add-category-active')?.checked ? 1 : 0;
-            const formCategoryNameValue = document.querySelector('#add-category-name')?.value.trim();
+    /**
+     * Loads the category list and registers its form handlers.
+     * @returns {Promise<void>}
+     */
+    async initialize() {
+        await this.getAllCategories();
 
-            const dataToAdd = {
-                "active": formIsActiveValue,
-                "name": formCategoryNameValue
-            }
-
-            CategoryController.addCategory(dataToAdd);
-        });
-
-        // Restore controls when the browser reuses the page after Back navigation.
-        searchCategoryForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-
-            const formInputId = Number(document.querySelector('#category-search-number')?.value);
-
-            CategoryController.searchCategory(formInputId);
-
-        });
-
+        this.listView.bindCreate((data) => this.addCategory(data));
+        this.listView.bindSearch((id) => this.searchCategory(id));
     }
 
     /**
      * Renders the category list or shows why it could not load.
      * @returns {Promise<void>}
      */
-    static async getAllCategories() {
+    async getAllCategories() {
         try {
-            const data = await CategoryModel.getAllCategories();
-            CategoryListView.buildAllCategoriesList(data);
+            const data = await this.categoryModel.getAllCategories();
+            this.listView.buildAllCategoriesList(data, {
+                onOpen: (id) => this.showCategoryInDetail(id),
+                onDelete: (id) => this.deleteCategory(id),
+            });
         } catch (error) {
-            CategoryListView.getAllCategoriesFailed(error.message);
+            this.listView.getAllCategoriesFailed(error.message);
         }
     }
 
@@ -61,31 +103,23 @@ class CategoryController {
      * Opens the permalink for a category.
      * @param {number|string} categoryId Category ID.
      */
-    static showCategoryInDetail(categoryId) {
-        const url = new URL('/item.php', baseURL);
-        url.searchParams.set('category', "category");
-        url.searchParams.set('id', categoryId)
-
-        window.location.href = url.href;
+    showCategoryInDetail(categoryId) {
+        window.location.href = App.buildDetailUrl("category", categoryId);
     }
 
     /**
      * Deletes a category and refreshes the list on success.
-     * @param {MouseEvent} event Click on the delete button.
      * @param {number|string} categoryId Category ID.
      * @returns {Promise<void>}
      */
-    static async deleteCategory(event, categoryId) {
-        // Keep the delete click from opening the detail page through the row handler.
-        event.stopPropagation()
-
+    async deleteCategory(categoryId) {
         InteractionView.setDisabled(".shop-table-scroll", true);
 
         try {
-            const hadSuccess = await CategoryModel.deleteCategory(categoryId);
+            const hadSuccess = await this.categoryModel.deleteCategory(categoryId);
             if (hadSuccess) {
                 MessageView.buildSuccess("all-categories-info", `Kategorie mit der ID ${categoryId} wurde gelöscht!`);
-                await CategoryController.reloadAllCategoriesList();
+                await this.reloadAllCategoriesList();
             }
         } catch (error) {
             MessageView.buildError("all-categories-info", `Fehler beim löschen der Kategorie: ${error.message}`);
@@ -99,21 +133,21 @@ class CategoryController {
      * @param {{active: number, name: string}} data Name and active status (1 or 0).
      * @returns {Promise<void>}
      */
-    static async addCategory(data) {
+    async addCategory(data) {
         MessageView.closeAllErrors(["input-category-active-p", "input-category-name-p", "input-category-form-p"]);
 
-        if (!CategoryController.validateUserInput(data)) {
+        if (!this.validateUserInput(data)) {
             return;
         }
 
         InteractionView.setDisabled("#add-category", true);
 
         try {
-            const hadSuccesses = await CategoryModel.postCategory(data);
+            const hadSuccesses = await this.categoryModel.postCategory(data);
             if (hadSuccesses) {
                 MessageView.buildInputFormSuccess("input-category-form-p",
                     `Die Kategorie ${data.name} erfolgreich hinzugefügt!`);
-                await CategoryController.reloadAllCategoriesList();
+                await this.reloadAllCategoriesList();
             }
         } catch (error) {
             MessageView.buildInputFormError("input-category-form-p",
@@ -127,14 +161,14 @@ class CategoryController {
      * Validates the search input and opens the matching detail page.
      * @param {number} idQuery Category ID entered in the search form.
      */
-    static searchCategory(idQuery) {
+    searchCategory(idQuery) {
         if (!idQuery || typeof idQuery !== "number" || idQuery <= 0) {
             MessageView.buildInputFormError("category-search-query-p", "Die eingeben ID ist ungültig.");
             return;
         }
 
         InteractionView.showNavigation("#search-category");
-        CategoryController.showCategoryInDetail(idQuery);
+        this.showCategoryInDetail(idQuery);
     }
 
     /**
@@ -143,19 +177,19 @@ class CategoryController {
      * @param {{active: number, name: string}} data Name and active status (1 or 0).
      * @returns {Promise<void>}
      */
-    static async patchCategory(id, data) {
+    async patchCategory(id, data) {
         MessageView.closeAllErrors(["input-category-active-p", "input-category-name-p", "input-category-form-p"]);
 
-        if (!CategoryController.validateUserInput(data)) {
+        if (!this.validateUserInput(data)) {
             return;
         }
 
         InteractionView.setDisabled("#patch-category", true);
 
         try {
-            const hadSuccesses = await CategoryModel.patchCategory(id, data);
+            const hadSuccesses = await this.categoryModel.patchCategory(id, data);
             if (hadSuccesses) {
-                CategoryDetailView.buildSite(id, data);
+                this.detailView.buildSite(id, data);
                 MessageView.buildInputFormSuccess("input-category-form-p",
                     `Die Kategorie ${data.name} erfolgreich geändert!`);
             }
@@ -174,7 +208,7 @@ class CategoryController {
      * @param {{active: number, name: string}} data Name and active status (1 or 0).
      * @returns {boolean} True if the data passes validation.
      */
-    static validateUserInput(data) {
+    validateUserInput(data) {
         if (typeof data.active !== "number" || (data.active !== 0 && data.active !== 1)) {
             MessageView.buildInputFormError("input-category-active-p", "Bitte geben Sie ein gültiges Aktiv-Wert ein.")
             return false;
@@ -193,8 +227,8 @@ class CategoryController {
      * Refreshes the category list after a change.
      * @returns {Promise<void>}
      */
-    static async reloadAllCategoriesList() {
-        await CategoryController.getAllCategories();
+    async reloadAllCategoriesList() {
+        await this.getAllCategories();
     }
 
 
@@ -203,23 +237,11 @@ class CategoryController {
      * @param {number|string} categoryId Category ID.
      * @returns {Promise<void>}
      */
-    static async showDetailCategory(categoryId) {
-        const patchCategoryForm = document.querySelector('#patch-category');
-        await CategoryController.getOneCategory(categoryId);
+    async showDetailCategory(categoryId) {
+        await this.getOneCategory(categoryId);
 
-        patchCategoryForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-
-            const activeValue = document.querySelector('#patch-category-active')?.checked ? 1 : 0;
-            const nameValue = document.querySelector('#patch-category-name')?.value;
-
-            const data = {
-                active: activeValue,
-                name: nameValue,
-            }
-
-            CategoryController.patchCategory(categoryId, data);
-        })
+        // Keep the category ID in the callback so the view only passes the edited fields.
+        this.detailView.bindEdit((data) => this.patchCategory(categoryId, data));
     }
 
     /**
@@ -227,20 +249,18 @@ class CategoryController {
      * @param {number|string} categoryId Category ID.
      * @returns {Promise<void>}
      */
-    static async getOneCategory(categoryId) {
+    async getOneCategory(categoryId) {
         try {
-            const data = await CategoryModel.getCategory(categoryId);
-            CategoryDetailView.buildSite(categoryId, data);
+            const data = await this.categoryModel.getCategory(categoryId);
+            this.detailView.buildSite(categoryId, data);
         } catch (error) {
             if (error.message === "Not authorized") {
-                CategoryDetailView.buildNotAuthorized();
+                this.detailView.buildNotAuthorized();
             } else if (error.message === "Not found") {
-                CategoryDetailView.buildNotFound(categoryId);
+                this.detailView.buildNotFound(categoryId);
             } else {
-                CategoryDetailView.buildError(error.message);
+                this.detailView.buildError(error.message);
             }
         }
     }
 }
-
-CategoryController.initialize().catch((error) => console.error(error));

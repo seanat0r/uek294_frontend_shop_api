@@ -10,37 +10,9 @@ declare(strict_types=1);
     <title>Shop API | <?= htmlspecialchars($page_title) ?></title>
     <link rel="stylesheet" href="/assets/css/style.css">
 
-    <script defer src="/js/config/api.js"></script>
-    <script defer src="/js/services/ApiClient.js"></script>
-    <script defer src="/js/models/AuthModel.js"></script>
-    <script defer src="/js/views/InteractionView.js"></script>
-    <script defer src="/js/views/IndexView.js"></script>
-    <script defer src="/js/controllers/AuthController.js"></script>
-    <script defer src="/js/controllers/NavigationController.js"></script>
-    <script defer src="/js/views/MessageView.js"></script>
-
-    <?php if ($page_controller_type === "product"): ?>
-        <script defer src="/js/models/ProductModel.js"></script>
-        <script defer src="/js/views/ProductListView.js"></script>
-        <script defer src="/js/views/ProductDetailView.js"></script>
-        <script defer src="/js/controllers/ProductController.js"></script>
-    <?php elseif ($page_controller_type === "category"): ?>
-        <script defer src="/js/models/CategoryModel.js"></script>
-        <script defer src="/js/views/CategoryListView.js"></script>
-        <script defer src="/js/views/CategoryDetailView.js"></script>
-        <script defer src="/js/controllers/CategoryController.js"></script>
-    <?php elseif ($page_controller_type === "item"): ?>
-        <script defer src="/js/models/ProductModel.js"></script>
-        <script defer src="/js/models/CategoryModel.js"></script>
-        <script defer src="/js/views/ProductDetailView.js"></script>
-        <script defer src="/js/views/CategoryDetailView.js"></script>
-        <script defer src="/js/controllers/ProductController.js"></script>
-        <script defer src="/js/controllers/CategoryController.js"></script>
-        <script defer src="/js/router/ItemRouter.js"></script>
-    <?php endif; ?>
-    <script defer src="/js/app.js"></script>
+    <script type="module" src="/js/app.js"></script>
 </head>
-<body<?= $page_controller_type === 'index' ? ' class="login-body"' : '' ?>>
+<body data-page="<?= htmlspecialchars($page_controller_type) ?>"<?= $page_controller_type === 'index' ? ' class="login-body"' : '' ?>>
 <header class="site-header">
     <div class="header-inner">
         <p class="brand">Shop API</p>

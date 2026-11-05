@@ -1,4 +1,7 @@
-class MessageView {
+/**
+ * Displays feedback in the form and list message elements.
+ */
+export class MessageView {
 
     /**
      * Clears and hides the specified messages.

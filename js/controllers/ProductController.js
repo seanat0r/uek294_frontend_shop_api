@@ -1,69 +1,101 @@
+import { MessageView } from "../views/MessageView.js";
+import { InteractionView } from "../views/InteractionView.js";
+import { App } from "../app.js";
+
 /**
  * Connects the product list, search and detail forms to the API.
  */
-class ProductController {
+export class ProductController {
+    /**
+     * Shared instance for the current browser page.
+     * @type {ProductController|null}
+     */
+    static #instance = null;
+
+    /**
+     * Key used to restrict construction to getInstance.
+     * @type {symbol}
+     */
+    static #key = Symbol();
+
+    /**
+     * Model used to load and save records.
+     * @type {ProductModel}
+     */
+    productModel;
+
+    /**
+     * View for the overview forms and table.
+     * @type {ProductListView}
+     */
+    listView;
+
+    /**
+     * View for record details and edits.
+     * @type {ProductDetailView}
+     */
+    detailView;
+
+    /**
+     * Receives the dependencies when the shared instance is created.
+     * @param {ProductModel} productModel Model used to load and save records.
+     * @param {ProductListView} listView View for the overview forms and table.
+     * @param {ProductDetailView} detailView View for record details and edits.
+     * @param {symbol} key Constructor key supplied by getInstance.
+     * @throws {Error} The constructor was called without the private key.
+     */
+    constructor(productModel, listView, detailView, key) {
+        if (key !== ProductController.#key) {
+            throw new Error("Use ProductController.getInstance().");
+        }
+
+        this.productModel = productModel;
+        this.listView = listView;
+        this.detailView = detailView;
+
+        ProductController.#instance = this;
+    }
+
+    /**
+     * Returns the shared instance, creating it on the first call.
+     * @param {ProductModel} productModel Model used to load and save records.
+     * @param {ProductListView} listView View for the overview forms and table.
+     * @param {ProductDetailView} detailView View for record details and edits.
+     * @returns {ProductController} Shared instance for this page.
+     */
+    static getInstance(productModel, listView, detailView) {
+        return ProductController.#instance ??= new ProductController(
+            productModel,
+            listView,
+            detailView,
+            ProductController.#key,
+        );
+    }
+
     /**
      * Loads the product list and registers its form handlers.
      * @returns {Promise<void>}
      */
-    static async initialize() {
-        const productAddForm = document.querySelector('#add-product');
-        const productSearchForm = document.querySelector('#search-product');
+    async initialize() {
+        await this.reloadAllProductsList();
 
-        // This controller also runs on the detail page, which has no product list.
-        if (!document.querySelector('#product-list')) {
-            return;
-        }
-
-        await ProductController.reloadAllProductsList();
-
-        productAddForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-
-            // Convert form values to the types expected by the API.
-            const sku = document.querySelector("#add-product-sku")?.value.trim();
-            const name = document.querySelector("#add-product-name")?.value.trim();
-            const idCategory = Number(document.querySelector("#add-product-category")?.value);
-            const description = document.querySelector("#add-product-description")?.value.trim();
-            const image = document.querySelector("#add-product-image")?.value.trim();
-            const price = Number(document.querySelector("#add-product-price")?.value);
-            const stock = Number(document.querySelector("#add-product-stock")?.value);
-            const active = document.querySelector("#add-product-active")?.checked ? 1 : 0;
-
-            const productData = {
-                active,
-                id_category: idCategory,
-                name,
-                image,
-                description,
-                price,
-                stock
-            };
-
-            ProductController.addProduct(sku, productData);
-        });
-
-        // Restore controls when the browser reuses the page after Back navigation.
-        productSearchForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-
-            const sku = document.querySelector("#product-search-sku")?.value.trim();
-
-            ProductController.searchProduct(sku);
-        })
-
+        this.listView.bindCreate((sku, data) => this.addProduct(sku, data));
+        this.listView.bindSearch((sku) => this.searchProduct(sku));
     }
 
     /**
      * Renders the product list or shows why it could not load.
      * @returns {Promise<void>}
      */
-    static async getAllProducts() {
+    async getAllProducts() {
         try {
-            const data = await ProductModel.getAllProducts();
-            ProductListView.buildAllProductList(data);
+            const data = await this.productModel.getAllProducts();
+            this.listView.buildAllProductList(data, {
+                onOpen: (sku) => this.showProductInDetail(sku),
+                onDelete: (sku) => this.deleteProduct(sku),
+            });
         } catch (error) {
-            ProductListView.getAllProductFailed(error.message);
+            this.listView.getAllProductFailed(error.message);
         }
     }
 
@@ -72,30 +104,23 @@ class ProductController {
      * @param {string} sku Product SKU.
      * @returns {void}
      */
-    static showProductInDetail(sku) {
-        const url = new URL('/item.php', baseURL);
-        url.searchParams.set('category', "product");
-        url.searchParams.set('id', sku)
-
-        window.location.href = url.href;
+    showProductInDetail(sku) {
+        window.location.href = App.buildDetailUrl("product", sku);
     }
 
     /**
      * Deletes a product and refreshes the list on success.
-     * @param {MouseEvent} event Click on the delete button.
      * @param {string} sku Product SKU.
      * @returns {Promise<void>}
      */
-    static async deleteProduct(event, sku) {
-        event.stopPropagation()
-
+    async deleteProduct(sku) {
         InteractionView.setDisabled(".shop-table-scroll", true);
 
         try {
-            const hadSuccess = await ProductModel.deleteProduct(sku);
+            const hadSuccess = await this.productModel.deleteProduct(sku);
             if (hadSuccess) {
                 MessageView.buildSuccess("all-products-info", `Produkt mit der SKU ${sku} wurde gelöscht!`);
-                await ProductController.reloadAllProductsList();
+                await this.reloadAllProductsList();
             }
         } catch (error) {
             MessageView.buildError("all-products-info", `Fehler beim Löschen des Produkts: ${error.message}`);
@@ -110,7 +135,7 @@ class ProductController {
      * @param {Object} data Product fields for PUT /product/{sku}.
      * @returns {Promise<void>}
      */
-    static async addProduct(sku, data) {
+    async addProduct(sku, data) {
         MessageView.closeAllErrors([
             "input-product-sku-p",
             "input-product-name-p",
@@ -123,18 +148,18 @@ class ProductController {
             "input-product-form-p"
         ]);
 
-        if (!ProductController.validateUserInput(sku, data, "input")) {
+        if (!this.validateUserInput(sku, data, "input")) {
             return;
         }
 
         InteractionView.setDisabled("#add-product", true);
 
         try {
-            const hadSuccesses = await ProductModel.putProduct(data, sku);
+            const hadSuccesses = await this.productModel.putProduct(data, sku);
             if (hadSuccesses) {
                 MessageView.buildInputFormSuccess("input-product-form-p",
                     `Die Produkt-SKU ${sku} erfolgreich hinzugefügt!`);
-                await ProductController.reloadAllProductsList();
+                await this.reloadAllProductsList();
             }
         } catch (error) {
             MessageView.buildInputFormError("input-product-form-p",
@@ -151,7 +176,7 @@ class ProductController {
      * @param {string} [elementPrefix="input"] Use "input" for creation or "put" for editing.
      * @returns {boolean} True if the data passes validation.
      */
-    static validateUserInput(sku, data, elementPrefix = "input") {
+    validateUserInput(sku, data, elementPrefix = "input") {
 
         // The edit form uses the SKU from the detail URL.
         if (elementPrefix !== "put" && (!sku || typeof sku !== "string")) {
@@ -203,70 +228,63 @@ class ProductController {
      * @param {string} sku SKU entered in the search form.
      * @returns {void}
      */
-    static searchProduct(sku) {
+    searchProduct(sku) {
         if (!sku || typeof sku !== "string") {
             MessageView.buildInputFormError("product-search-query-p", "Bitte geben Sie eine gültige SKU ein.");
             return;
         }
 
         InteractionView.showNavigation("#search-product");
-        ProductController.showProductInDetail(sku);
+        this.showProductInDetail(sku);
     }
 
     /**
      * Refreshes the product list after a change.
      * @returns {Promise<void>}
      */
-    static async reloadAllProductsList() {
-        await ProductController.getAllProducts();
+    async reloadAllProductsList() {
+        await this.getAllProducts();
     }
 
-    static async showDetailProduct(sku) {
-        const putProductForm = document.querySelector('#put-product');
+    /**
+     * Loads the product before binding the edit form.
+     * @param {string} sku SKU from the detail URL.
+     * @returns {Promise<void>}
+     */
+    async showDetailProduct(sku) {
+        await this.getOneProduct(sku);
 
-        await ProductController.getOneProduct(sku);
-
-        putProductForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-
-            const name = document.querySelector("#put-product-name")?.value.trim();
-            const idCategory = Number(document.querySelector("#put-product-category")?.value);
-            const description = document.querySelector("#put-product-description")?.value.trim();
-            const image = document.querySelector("#put-product-image")?.value.trim();
-            const price = Number(document.querySelector("#put-product-price")?.value);
-            const stock = Number(document.querySelector("#put-product-stock")?.value);
-            const active = document.querySelector("#put-product-active")?.checked ? 1 : 0;
-
-            const productData = {
-                active,
-                id_category: idCategory,
-                name,
-                image,
-                description,
-                price,
-                stock
-            };
-
-            ProductController.updateProduct(sku, productData);
-        });
+        // Keep the SKU in the callback so the view only passes the edited fields.
+        this.detailView.bindEdit((data) => this.updateProduct(sku, data));
     }
 
-    static async getOneProduct(sku, data) {
+    /**
+     * Renders the requested product or shows the matching load error.
+     * @param {string} sku SKU of the product to load.
+     * @returns {Promise<void>}
+     */
+    async getOneProduct(sku) {
         try {
-            const data = await ProductModel.getProduct(sku);
-            ProductDetailView.buildSite(sku, data);
+            const data = await this.productModel.getProduct(sku);
+            this.detailView.buildSite(sku, data);
         } catch (error) {
             if (error.message === "Not authorized") {
-                ProductDetailView.buildNotAuthorized();
+                this.detailView.buildNotAuthorized();
             } else if (error.message === "Not found") {
-                ProductDetailView.buildNotFound(sku);
+                this.detailView.buildNotFound(sku);
             } else {
-                ProductDetailView.buildError(error.message);
+                this.detailView.buildError(error.message);
             }
         }
     }
 
-    static async updateProduct(sku, data) {
+    /**
+     * Validates and saves the edits, then reloads the stored product.
+     * @param {string} sku SKU of the product to update.
+     * @param {Object} data Product fields from the edit form.
+     * @returns {Promise<void>}
+     */
+    async updateProduct(sku, data) {
         MessageView.closeAllErrors([
             "put-product-name-p",
             "put-product-category-p",
@@ -278,18 +296,18 @@ class ProductController {
             "put-product-form-p"
         ]);
 
-        if (!ProductController.validateUserInput(sku, data, "put")) {
+        if (!this.validateUserInput(sku, data, "put")) {
             return;
         }
 
         InteractionView.setDisabled("#put-product", true);
 
         try {
-            const hadSuccesses = await ProductModel.putProduct(data, sku);
+            const hadSuccesses = await this.productModel.putProduct(data, sku);
             if (hadSuccesses) {
-                // Reload the saved product to get its product_id, which the edit form does not submit.
-                const savedProduct = await ProductModel.getProduct(sku);
-                ProductDetailView.buildSite(sku, savedProduct);
+                // putProduct returns a success flag. Fetch the record again to display its product_id.
+                const savedProduct = await this.productModel.getProduct(sku);
+                this.detailView.buildSite(sku, savedProduct);
                 MessageView.buildInputFormSuccess("put-product-form-p",
                     `Die Produkt SKU ${sku} erfolgreich geändert!`);
             }
@@ -301,5 +319,3 @@ class ProductController {
         }
     }
 }
-
-ProductController.initialize().catch((error) => console.error(error));

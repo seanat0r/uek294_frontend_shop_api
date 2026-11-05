@@ -8,9 +8,9 @@ $is_index = false;
 require_once __DIR__ . '/include/header.php';
 
 // Render the matching edit form. The browser loads the record through the API.
-$params = $_SERVER['QUERY_STRING'] ?? '';
+$category = $_GET['category'] ?? '';
 
-if (str_contains($params, "category=product")): ?>
+if ($category === "product"): ?>
     <div id="product-detail-page" class="shop-page">
         <section id="product-detail-view">
         </section>
@@ -110,7 +110,7 @@ if (str_contains($params, "category=product")): ?>
         </section>
     </div>
 
-<?php elseif (str_contains($params, "category=category")): ?>
+<?php elseif ($category === "category"): ?>
     <div id="category-detail-page" class="shop-page">
         <h1>Kategorie Detailansicht</h1>
         <section id="category-detail-view"></section>

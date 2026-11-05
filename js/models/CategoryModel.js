@@ -1,11 +1,50 @@
-class CategoryModel {
+import {API} from "../config/api.js";
+
+/**
+ * Calls the shop API to list, create, edit and delete categories.
+ */
+export class CategoryModel {
+    /**
+     * Shared instance for the current browser page.
+     * @type {CategoryModel|null}
+     */
+    static #instance = null;
+
+    /**
+     * Key used to restrict construction to getInstance.
+     * @type {symbol}
+     */
+    static #key = Symbol();
+
+    /**
+     * Creates the shared model through its private constructor key.
+     * @param {symbol} key Constructor key supplied by getInstance.
+     * @throws {Error} The constructor was called without the private key.
+     */
+    constructor(key) {
+        if (key !== CategoryModel.#key) {
+            throw new Error("Use CategoryModel.getInstance().");
+        }
+
+        CategoryModel.#instance = this;
+    }
+
+    /**
+     * Returns the shared instance, creating it on the first call.
+     * @returns {CategoryModel} Shared instance for this page.
+     */
+    static getInstance() {
+        return CategoryModel.#instance ??= new CategoryModel(CategoryModel.#key);
+    }
+
 
     /**
      * Maps API status codes to errors the controller can handle.
      * @param {Response} res Response from fetch.
-     * @returns {boolean} True for a successful response. Throws otherwise.
+     * @returns {boolean} True for a successful response.
+     * @throws {Error} The API returned an unsuccessful HTTP status.
      */
-    static handleResponse(res) {
+    handleResponse(res) {
         if (res.status === 400) {
             throw new Error("Validation failed");
         }
@@ -30,7 +69,7 @@ class CategoryModel {
      * Fetches the category list.
      * @returns {Promise<Object[]>} Categories returned by the API.
      */
-    static async getAllCategories() {
+    async getAllCategories() {
         const response = await fetch(API + "/categories", {
             method: "GET",
             credentials: "include",
@@ -38,7 +77,7 @@ class CategoryModel {
 
         console.log(response);
 
-        CategoryModel.handleResponse(response);
+        this.handleResponse(response);
 
         return await response.json();
     }
@@ -48,13 +87,13 @@ class CategoryModel {
      * @param {number|string} id Category ID.
      * @returns {Promise<Object|Array>} Category record, with an empty array as a fallback.
      */
-    static async getCategory(id) {
+    async getCategory(id) {
         const response = await fetch(API + "/category/" + id, {
             method: "GET",
             credentials: "include",
         });
 
-        CategoryModel.handleResponse(response);
+        this.handleResponse(response);
 
         return await response.json() || [];
     }
@@ -64,14 +103,15 @@ class CategoryModel {
      * @param {{active: number, name: string}} body Name and active status (1 or 0).
      * @returns {Promise<boolean>} Resolves to true when the API accepts the request.
      */
-    static async postCategory(body) {
+    async postCategory(body) {
+        console.log(body);
         const response = await fetch(API + "/category", {
             method: "POST",
             credentials: "include",
             body: JSON.stringify(body),
         });
 
-        CategoryModel.handleResponse(response);
+        this.handleResponse(response);
 
         return true;
     }
@@ -81,13 +121,13 @@ class CategoryModel {
      * @param {number|string} id ID of the category to delete.
      * @returns {Promise<boolean>} Resolves to true when the API accepts the request.
      */
-    static async deleteCategory(id) {
+    async deleteCategory(id) {
         const response = await fetch(API + "/category/" + id, {
             method: "DELETE",
             credentials: "include",
         });
 
-        CategoryModel.handleResponse(response);
+        this.handleResponse(response);
 
         return true;
     }
@@ -98,14 +138,14 @@ class CategoryModel {
      * @param {{active: number, name: string}} body Name and active status (1 or 0).
      * @returns {Promise<boolean>} Resolves to true when the API accepts the request.
      */
-    static async patchCategory(id, body) {
+    async patchCategory(id, body) {
         const response = await fetch(API + "/category/" + id, {
             method: "PATCH",
             credentials: "include",
             body: JSON.stringify(body),
         });
 
-        CategoryModel.handleResponse(response);
+        this.handleResponse(response);
 
         return true;
     }

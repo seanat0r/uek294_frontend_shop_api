@@ -1,7 +1,7 @@
 /**
  * Displays temporary interaction states.
  */
-class InteractionView {
+export class InteractionView {
     /**
      * Shows or hides the loading overlay for authentication.
      * @param {string} selector Area to update.
@@ -21,7 +21,7 @@ class InteractionView {
     }
 
     /**
-     * Briefly dims the area that triggered navigation.
+     * Dims the source area briefly while navigation starts.
      * @param {string} selector Area to update.
      */
     static showNavigation(selector) {
@@ -31,6 +31,7 @@ class InteractionView {
         }
 
         area.classList.add("is-navigating");
+        // Clear the temporary state if the page stays open.
         setTimeout(() => area.classList.remove("is-navigating"), 1000);
     }
 }

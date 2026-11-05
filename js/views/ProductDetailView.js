@@ -1,6 +1,67 @@
-class ProductDetailView {
+/**
+ * Renders product details and collects edits from the form.
+ */
+export class ProductDetailView {
+    /**
+     * Shared instance for the current browser page.
+     * @type {ProductDetailView|null}
+     */
+    static #instance = null;
 
-    static buildNotAuthorized() {
+    /**
+     * Key used to restrict construction to getInstance.
+     * @type {symbol}
+     */
+    static #key = Symbol();
+
+    /**
+     * Receives the dependencies when the shared instance is created.
+     * @param {symbol} key Constructor key supplied by getInstance.
+     * @throws {Error} The constructor was called without the private key.
+     */
+    constructor(key) {
+        if (key !== ProductDetailView.#key) {
+            throw new Error("Use ProductDetailView.getInstance().");
+        }
+
+        ProductDetailView.#instance = this;
+    }
+
+    /**
+     * Returns the shared instance, creating it on the first call.
+     * @returns {ProductDetailView} Shared instance for this page.
+     */
+    static getInstance() {
+        return ProductDetailView.#instance ??= new ProductDetailView(ProductDetailView.#key);
+    }
+
+
+    /**
+     * Reads the current edit values when the form is submitted.
+     * @param {function(Object): Promise<void>} onSave Receives the edited fields. The controller supplies the SKU.
+     */
+    bindEdit(onSave) {
+        document.querySelector("#put-product")?.addEventListener("submit", (event) => {
+            event.preventDefault();
+
+            const data = {
+                active: document.querySelector("#put-product-active")?.checked ? 1 : 0,
+                id_category: Number(document.querySelector("#put-product-category")?.value),
+                name: document.querySelector("#put-product-name")?.value.trim(),
+                image: document.querySelector("#put-product-image")?.value.trim(),
+                description: document.querySelector("#put-product-description")?.value.trim(),
+                price: Number(document.querySelector("#put-product-price")?.value),
+                stock: Number(document.querySelector("#put-product-stock")?.value),
+            };
+
+            return onSave(data);
+        });
+    }
+
+    /**
+     * Replaces the detail page with a sign-in message after a 401 response.
+     */
+    buildNotAuthorized() {
         const page = document.querySelector('#product-detail-page');
         const htmlString =
             `
@@ -12,7 +73,11 @@ class ProductDetailView {
 
     }
 
-    static buildNotFound(sku) {
+    /**
+     * Shows which product could not be found.
+     * @param {string} sku SKU requested in the detail URL.
+     */
+    buildNotFound(sku) {
         const page = document.querySelector('#product-detail-page');
         const htmlString =
             `
@@ -26,7 +91,11 @@ class ProductDetailView {
         page.innerHTML = htmlString;
     }
 
-    static buildError(message) {
+    /**
+     * Replaces the details and edit form with a load error.
+     * @param {string} message Error from the failed request.
+     */
+    buildError(message) {
         const page = document.querySelector('#product-detail-page');
         const htmlString =
             `
@@ -41,7 +110,12 @@ class ProductDetailView {
 
     }
 
-    static buildSite(sku, data) {
+    /**
+     * Renders the product and fills the edit form with the same values.
+     * @param {string} sku SKU from the detail URL, used if the record has no SKU.
+     * @param {Object} data Product record used for the details and form.
+     */
+    buildSite(sku, data) {
         const view = document.querySelector('#product-detail-view');
 
         const viewHTMLString = `
@@ -72,7 +146,6 @@ class ProductDetailView {
         view.innerHTML = "";
         view.innerHTML = viewHTMLString;
 
-        // Prefill the edit form with the values shown in the detail view.
         document.querySelector('#put-product-sku-p').textContent =
             `SKU: ${data.sku ?? sku}`;
 
@@ -82,6 +155,7 @@ class ProductDetailView {
         document.querySelector('#put-product-image').value = data.image;
         document.querySelector('#put-product-price').value = data.price;
         document.querySelector('#put-product-stock').value = data.stock;
+        // Convert the active flag so a value such as "1" also checks the box.
         document.querySelector('#put-product-active').checked =
             Number(data.active) === 1;
     }
