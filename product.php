@@ -74,7 +74,7 @@ require_once __DIR__ . '/include/header.php';
             </div>
 
             <div class="shop-field">
-                <label for="add-product-price">Preis</label>
+                <label for="add-product-price">Preis (CHF)</label>
                 <input
                         type="number"
                         id="add-product-price"
@@ -145,13 +145,16 @@ require_once __DIR__ . '/include/header.php';
                         <th>SKU</th>
                         <th>Name</th>
                         <th>Kategorie-ID</th>
-                        <th>Preis</th>
+                        <th>Preis (CHF)</th>
                         <th>Lagerbestand</th>
                         <th>Aktiv</th>
                         <th>Löschen</th>
                     </tr>
                     </thead>
                     <tbody id="product-list">
+                    <tr>
+                        <td>Tabelle ist am Laden ...</td>
+                    </tr>
                     </tbody>
                 </table>
             </div>

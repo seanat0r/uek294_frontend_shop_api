@@ -60,6 +60,9 @@ require_once __DIR__ . '/include/header.php';
                 </tr>
                 </thead>
                 <tbody id="category-list">
+                <tr>
+                    <td>Tabelle ist am Laden ...</td>
+                </tr>
                 </tbody>
             </table>
         </div>

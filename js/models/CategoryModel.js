@@ -75,8 +75,6 @@ export class CategoryModel {
             credentials: "include",
         });
 
-        console.log(response);
-
         this.handleResponse(response);
 
         return await response.json();

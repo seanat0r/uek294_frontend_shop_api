@@ -1,4 +1,4 @@
-import { API } from "../config/api.js";
+import {API} from "../config/api.js";
 
 /**
  * Calls the shop API to read and change products by SKU.
@@ -72,8 +72,6 @@ export class ProductModel {
             method: "GET",
             credentials: "include",
         });
-
-        console.log(response);
 
         this.handleResponse(response);
 

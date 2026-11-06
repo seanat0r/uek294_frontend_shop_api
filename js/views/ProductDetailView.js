@@ -134,7 +134,7 @@ export class ProductDetailView {
                 <dd>${data.image}</dd>
                 <dt>Beschreibung</dt>
                 <dd>${data.description}</dd>
-                <dt>Preis</dt>
+                <dt>Preis (CHF)</dt>
                 <dd>${data.price}</dd>
                 <dt>Lagerbestand</dt>
                 <dd>${data.stock}</dd>

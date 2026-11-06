@@ -13,6 +13,7 @@ $category = $_GET['category'] ?? '';
 if ($category === "product"): ?>
     <div id="product-detail-page" class="shop-page">
         <section id="product-detail-view">
+            <p>Seite ist am Laden …</p>
         </section>
         <section>
             <form id="put-product" class="shop-form">
@@ -68,7 +69,7 @@ if ($category === "product"): ?>
                 </div>
 
                 <div class="shop-field">
-                    <label for="put-product-price">Preis</label>
+                    <label for="put-product-price">Preis (CHF)</label>
                     <input
                             type="number"
                             id="put-product-price"
@@ -113,7 +114,9 @@ if ($category === "product"): ?>
 <?php elseif ($category === "category"): ?>
     <div id="category-detail-page" class="shop-page">
         <h1>Kategorie Detailansicht</h1>
-        <section id="category-detail-view"></section>
+        <section id="category-detail-view">
+            <p>Seite ist am Laden …</p>
+        </section>
 
         <section>
             <form id="patch-category" class="shop-form">

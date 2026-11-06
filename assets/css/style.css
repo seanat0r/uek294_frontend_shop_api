@@ -194,6 +194,11 @@ body {
     opacity: 1;
 }
 
+#login-form.loading:hover,
+.logout-action.loading:hover {
+    cursor: wait;
+}
+
 #login-form.loading > *,
 .logout-action.loading > * {
     pointer-events: none;
@@ -258,8 +263,11 @@ body {
 .shop-table-scroll.is-navigating {
     opacity: .65;
     filter: grayscale(1);
-    pointer-events: none;
-    interactivity: inert;
+}
+
+.shop-form.is-disabled:hover,
+.shop-form.is-navigating:hover {
+    cursor: wait;
 }
 
 .shop-search {
