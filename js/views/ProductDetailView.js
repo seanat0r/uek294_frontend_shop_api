@@ -1,3 +1,5 @@
+import {App} from "../app.js";
+
 /**
  * Renders product details and collects edits from the form.
  */
@@ -119,27 +121,27 @@ export class ProductDetailView {
         const view = document.querySelector('#product-detail-view');
 
         const viewHTMLString = `
-        <h2>Produkt: ${data.name}</h2>
+        <h2>Produkt: ${App.escapeHTML(data.name)}</h2>
         <div class="product-details">
             <dl class="shop-properties">
                 <dt>Produkt-ID</dt>
-                <dd>${data.product_id}</dd>
+                <dd>${App.escapeHTML(data.product_id)}</dd>
                 <dt>SKU</dt>
-                <dd>${data.sku ?? sku}</dd>
+                <dd>${App.escapeHTML(data.sku ?? sku)}</dd>
                 <dt>Aktivstatus</dt>
-                <dd>${Number(data.active) === 1 ? "aktiv" : "inaktiv"}</dd>
+                <dd>${Number(App.escapeHTML(data.active)) === 1 ? "aktiv" : "inaktiv"}</dd>
                 <dt>Kategorie-ID</dt>
-                <dd>${data.id_category}</dd>
+                <dd>${App.escapeHTML(data.id_category)}</dd>
                 <dt>Bild-URL</dt>
-                <dd>${data.image}</dd>
+                <dd>${App.escapeHTML(data.image)}</dd>
                 <dt>Beschreibung</dt>
-                <dd>${data.description}</dd>
+                <dd>${App.escapeHTML(data.description)}</dd>
                 <dt>Preis (CHF)</dt>
-                <dd>${data.price}</dd>
+                <dd>${App.escapeHTML(data.price)}</dd>
                 <dt>Lagerbestand</dt>
-                <dd>${data.stock}</dd>
+                <dd>${App.escapeHTML(data.stock)}</dd>
             </dl>
-            <img src="${data.image}" alt="Bild: ${data.name}">
+            <img src="${App.escapeHTML(data.image)}" alt="Bild: ${App.escapeHTML(data.name)}">
         </div>
     `;
 

@@ -46,6 +46,9 @@ body {
 .site-header {
     background: var(--deep-blue);
     color: var(--white);
+    position: sticky;
+    top: 0;
+    z-index: 1;
 }
 
 .header-inner {
@@ -325,6 +328,10 @@ body {
 #product-detail-view:empty,
 #category-detail-view:empty {
     display: none;
+}
+
+.sub-title {
+    font-size: 0.5em;
 }
 
 .shop-field p,

@@ -1,4 +1,4 @@
-import { API } from "../config/api.js";
+import {API} from "../config/api.js";
 
 /**
  * Calls the API endpoints that manage the session.
@@ -80,8 +80,6 @@ export class AuthModel {
         if (!response.ok) {
             throw new Error(`Unauthenticate failed (HTTP ${response.status}).`);
         }
-
-        console.log(response);
 
         return true;
     }

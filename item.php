@@ -12,6 +12,7 @@ $category = $_GET['category'] ?? '';
 
 if ($category === "product"): ?>
     <div id="product-detail-page" class="shop-page">
+        <h1>Produkt Detailansicht und Bearbeitung</h1>
         <section id="product-detail-view">
             <p>Seite ist am Laden …</p>
         </section>
@@ -29,6 +30,8 @@ if ($category === "product"): ?>
                             id="put-product-name"
                             name="name"
                             placeholder="Bsp. Apfelkuchen"
+                            maxlength="500"
+                            minlength="1"
                             required
                     >
                     <p id="put-product-name-p"></p>
@@ -63,6 +66,7 @@ if ($category === "product"): ?>
                             id="put-product-image"
                             name="image"
                             placeholder="https://example.com/bild.jpg"
+                            maxlength="1000"
                             required
                     >
                     <p id="put-product-image-p"></p>
@@ -113,7 +117,7 @@ if ($category === "product"): ?>
 
 <?php elseif ($category === "category"): ?>
     <div id="category-detail-page" class="shop-page">
-        <h1>Kategorie Detailansicht</h1>
+        <h1>Kategorie Detailansicht und Bearbeitung</h1>
         <section id="category-detail-view">
             <p>Seite ist am Laden …</p>
         </section>
@@ -124,14 +128,25 @@ if ($category === "product"): ?>
 
                 <div class="shop-field">
                     <label for="patch-category-name">Kategoriename</label>
-                    <input type="text" id="patch-category-name" name="add-category-name" placeholder="Bsp. Backwaren"
-                           required>
+                    <input
+                            type="text"
+                            id="patch-category-name"
+                            name="add-category-name"
+                            placeholder="Bsp. Backwaren"
+                            maxlength="500"
+                            minlength="1"
+                            required
+                    >
                     <p id="input-category-name-p"></p>
                 </div>
 
                 <div class="shop-field shop-check">
                     <label for="patch-category-active">Aktiv</label>
-                    <input type="checkbox" id="patch-category-active" name="add-category-active">
+                    <input
+                            type="checkbox"
+                            id="patch-category-active"
+                            name="add-category-active"
+                    >
                     <p id="input-category-active-p"></p>
                 </div>
 

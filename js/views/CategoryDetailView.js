@@ -1,3 +1,5 @@
+import {App} from "../app.js";
+
 /**
  * Renders category details and collects edits from the form.
  */
@@ -114,12 +116,12 @@ export class CategoryDetailView {
         const view = document.querySelector('#category-detail-view');
         const viewHTMLString =
             `
-            <h2>Kategorie: ${data.name}</h2>
+            <h2>Kategorie: ${App.escapeHTML(data.name)}</h2>
             <dl class="shop-properties">
                 <dt>ID</dt>
-                <dd>${data.category_id ?? categoryId}</dd>
+                <dd>${App.escapeHTML(data.category_id ?? categoryId)}</dd>
                 <dt>Aktivstatus</dt>
-                <dd>${Number(data.active) === 1 ? "aktiv" : "inaktiv"}</dd>
+                <dd>${Number(App.escapeHTML(data.active)) === 1 ? "aktiv" : "inaktiv"}</dd>
             </dl>
             `
         view.innerHTML = "";

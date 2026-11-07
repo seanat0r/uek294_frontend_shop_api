@@ -101,12 +101,12 @@ export class CategoryListView {
 
             const htmlString =
                 `
-                <tr id="category-item-${category.category_id}">
-                    <td>${category.category_id}</td>
+                <tr id="category-item-${App.escapeHTML(category.category_id)}">
+                    <td>${App.escapeHTML(category.category_id)}</td>
                     <td class="shop-name">
-                        <a href="${url}">${category.name}</a>
+                        <a href="${url}">${App.escapeHTML(category.name)}</a>
                     </td>
-                    <td>${Number(category.active) === 1 ? "aktiv" : "inaktiv"}</td>
+                    <td>${Number(App.escapeHTML(category.active)) === 1 ? "aktiv" : "inaktiv"}</td>
                     <td>
                         <button type="button" class="shop-delete" id="category-item-delete-${category.category_id}">
                             Löschen

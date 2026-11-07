@@ -9,7 +9,7 @@ require_once __DIR__ . '/include/header.php';
 ?>
 
 <main class="shop-page">
-    <h1>Kategorien</h1>
+    <h1>Kategorien <span class="sub-title">Erstellen • Suchen • Alle</span></h1>
 
     <form id="add-category" class="shop-form">
         <h2>Kategorie erstellen</h2>
@@ -17,13 +17,26 @@ require_once __DIR__ . '/include/header.php';
 
         <div class="shop-field">
             <label for="add-category-name">Kategoriename</label>
-            <input type="text" id="add-category-name" name="add-category-name" placeholder="Bsp. Backwaren" required>
+            <input
+                    type="text"
+                    id="add-category-name"
+                    name="add-category-name"
+                    placeholder="Bsp. Backwaren"
+                    maxlength="500"
+                    minlength="1"
+                    required
+            >
             <p id="input-category-name-p"></p>
         </div>
 
         <div class="shop-field shop-check">
             <label for="add-category-active">Aktiv</label>
-            <input type="checkbox" id="add-category-active" name="add-category-active" checked>
+            <input
+                    type="checkbox"
+                    id="add-category-active"
+                    name="add-category-active"
+                    checked
+            >
             <p id="input-category-active-p"></p>
         </div>
 
@@ -36,7 +49,13 @@ require_once __DIR__ . '/include/header.php';
 
         <div class="shop-field">
             <label for="category-search-number">Kategorie nach ID suchen</label>
-            <input type="number" id="category-search-number" required>
+            <input
+                    type="number"
+                    id="category-search-number"
+                    maxlength="500"
+                    minlength="1"
+                    required
+            >
             <p id="category-search-query-p"></p>
         </div>
 

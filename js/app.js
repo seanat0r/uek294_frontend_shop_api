@@ -18,6 +18,19 @@ import {CategoryController} from "./controllers/CategoryController.js";
  * Connects the shared objects and starts the current page.
  */
 export class App {
+
+    /**
+     * Escaping an HTML String with `textContent`.
+     * @param unsafeString non escaped HTML String
+     * @returns {string} escaped HTML String
+     */
+    static escapeHTML(unsafeString) {
+        if (typeof unsafeString !== "string") return "";
+        const div = document.createElement("div");
+        div.textContent = unsafeString;
+        return div.innerHTML;
+    }
+
     /**
      * Builds the same record link for table rows and search results.
      * @param {"product"|"category"} category Type of record to open.

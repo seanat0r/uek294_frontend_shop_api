@@ -1,5 +1,5 @@
 import {InteractionView} from "./InteractionView.js";
-import { App } from "../app.js";
+import {App} from "../app.js";
 
 /**
  * Renders the product overview and handles input from its forms and rows.
@@ -105,13 +105,13 @@ export class ProductListView {
 
             const htmlString =
                 `
-                <tr id="product-row-${product.sku}">
-                    <td>${product.sku}</td>
-                    <td class="shop-name"><a href="${url}">${product.name}</a></td>
-                    <td>${product.id_category}</td>
-                    <td>${product.price}</td>
-                    <td>${product.stock}</td>
-                    <td>${Number(product.active) === 1 ? "aktiv" : "inaktiv"}</td>
+                <tr id="product-row-${App.escapeHTML(product.sku)}">
+                    <td>${App.escapeHTML(product.sku)}</td>
+                    <td class="shop-name"><a href="${url}">${App.escapeHTML(product.name)}</a></td>
+                    <td>${App.escapeHTML(product.id_category)}</td>
+                    <td>${App.escapeHTML(product.price)}</td>
+                    <td>${App.escapeHTML(product.stock)}</td>
+                    <td>${Number(App.escapeHTML(product.active)) === 1 ? "aktiv" : "inaktiv"}</td>
                     <td>
                         <button type="button" class="shop-delete" id="product-item-delete-${product.sku}">
                             Löschen
