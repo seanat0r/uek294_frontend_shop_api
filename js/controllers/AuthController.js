@@ -77,16 +77,21 @@ export class AuthController {
      */
     async logout() {
         InteractionView.setLoading(".logout-action", true);
-
+        // Redirect to the login page unless the logout request fails.
+        let changeSite = true;
         try {
             const isLogout = await this.authModel.unauthenticate();
             if (isLogout) {
-                window.location.href = "/index.php";
+                changeSite = true;
             }
         } catch (error) {
+            changeSite = false;
             alert(`Error: ${error}\nTry again!`);
         } finally {
             InteractionView.setLoading(".logout-action", false);
+            if (changeSite) {
+                window.location.href = "/index.php";
+            }
         }
     }
 

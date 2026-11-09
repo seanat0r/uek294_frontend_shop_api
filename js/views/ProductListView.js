@@ -79,14 +79,17 @@ export class ProductListView {
      * @param {string} text Reason the list could not load.
      */
     getAllProductFailed(text) {
-        const productsSection = document.querySelector('#all-products-section');
+        const tbody = document.querySelector("#product-list");
         const htmlString =
             `
-            <h2>Liste konnte nicht geladen werden.</h2>
-            <p>${text}</p>
+            <tr>
+            <td colspan="7">
+                Liste konnte nicht geladen werden. ${App.escapeHTML(text)}
+            </td>
+            </tr>
             `;
-        productsSection.innerHTML = "";
-        productsSection.innerHTML = htmlString;
+        tbody.innerHTML = "";
+        tbody.innerHTML = htmlString;
     }
 
     /**

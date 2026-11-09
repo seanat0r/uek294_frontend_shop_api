@@ -85,7 +85,7 @@ export class ProductDetailView {
             `
             <h1>Produkt konnte nicht gefunden werden!</h1>
             <p>Bitte erstellen Sie zuerst das Produkt und versuchen Sie es dann erneut oder passen sie die SKU an.<br>
-            Aktuelle SKU: ${sku}<br>
+            Aktuelle SKU: ${App.escapeHTML(sku)}<br>
             </p>
           
             `

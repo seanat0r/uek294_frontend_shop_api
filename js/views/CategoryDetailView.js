@@ -80,7 +80,7 @@ export class CategoryDetailView {
             `
             <h1>Kategorie konnte nicht gefunden werden!</h1>
             <p>Bitte erstellen Sie zuerst die Kategorie und versuchen Sie es dann erneut oder passen sie die ID an.<br>
-            Aktuelle ID: ${categoryId}<br>
+            Aktuelle ID: ${App.escapeHTML(categoryId)}<br>
             </p>
           
             `
