@@ -28,8 +28,28 @@ export class MessageView {
      */
     static buildInputFormError(elementId, text) {
         const pElement = document.querySelector(`#${elementId}`);
+        pElement.classList.remove("form-success");
         pElement.style.display = 'block';
         pElement.textContent = text;
+    }
+
+    /**
+     * Returns a message the user can act on after a failed request.
+     * @param {Error} error Error from the failed request.
+     * @param {string} fallback Message for other failures during this action.
+     * @returns {string} Message to display.
+     */
+    static requestErrorText(error, fallback) {
+        switch (error.message) {
+            case "Not authorized":
+                return "Bitte melden Sie sich zuerst an.";
+            case "Validation failed":
+                return "Bitte prüfen Sie Ihre Eingaben.";
+            case "Not found":
+                return "Der Eintrag wurde nicht gefunden.";
+            default:
+                return fallback;
+        }
     }
 
     /**

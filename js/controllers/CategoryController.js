@@ -109,7 +109,9 @@ export class CategoryController {
             if (error.message === "Not authorized") {
                 this.navigationView.loginText();
             }
-            this.listView.getAllCategoriesFailed(error.message);
+            this.listView.getAllCategoriesFailed(
+                MessageView.requestErrorText(error, "Bitte versuchen Sie es erneut.")
+            );
         }
     }
 
@@ -136,7 +138,9 @@ export class CategoryController {
                 await this.reloadAllCategoriesList();
             }
         } catch (error) {
-            MessageView.buildError("all-categories-info", `Fehler beim löschen der Kategorie: ${error.message}`);
+            MessageView.buildError("all-categories-info", MessageView.requestErrorText(
+                error, "Die Kategorie konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
+            ));
         } finally {
             InteractionView.setDisabled(".shop-table-scroll", false);
         }
@@ -164,8 +168,9 @@ export class CategoryController {
                 await this.reloadAllCategoriesList();
             }
         } catch (error) {
-            MessageView.buildInputFormError("input-category-form-p",
-                `Ein Fehler ist aufgetreten: ${error.message}`);
+            MessageView.buildInputFormError("input-category-form-p", MessageView.requestErrorText(
+                error, "Die Kategorie konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
+            ));
         } finally {
             InteractionView.setDisabled("#add-category", false);
         }
@@ -208,8 +213,9 @@ export class CategoryController {
                     `Die Kategorie ${data.name} erfolgreich geändert!`);
             }
         } catch (error) {
-            MessageView.buildInputFormError("input-category-form-p",
-                "Konnte nicht gespeichert werden: " + error.message);
+            MessageView.buildInputFormError("input-category-form-p", MessageView.requestErrorText(
+                error, "Die Kategorie konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
+            ));
         } finally {
             InteractionView.setDisabled("#patch-category", false);
         }
@@ -275,7 +281,7 @@ export class CategoryController {
             } else if (error.message === "Not found") {
                 this.detailView.buildNotFound(categoryId);
             } else {
-                this.detailView.buildError(error.message);
+                this.detailView.buildError();
             }
         }
     }

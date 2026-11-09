@@ -95,16 +95,13 @@ export class ProductDetailView {
 
     /**
      * Replaces the details and edit form with a load error.
-     * @param {string} message Error from the failed request.
      */
-    buildError(message) {
+    buildError() {
         const page = document.querySelector('#product-detail-page');
         const htmlString =
             `
             <h1>Produkt konnte nicht geladen werden!</h1>
-            <p>Bitte überprüfen Sie Ihre URL. <br>
-            Error: ${message}<br>
-            </p>
+            <p>Bitte versuchen Sie es erneut.</p>
           
             `
         page.innerHTML = "";

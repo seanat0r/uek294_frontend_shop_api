@@ -109,7 +109,9 @@ export class ProductController {
             if (error.message === "Not authorized") {
                 this.navigationView.loginText();
             }
-            this.listView.getAllProductFailed(error.message);
+            this.listView.getAllProductFailed(
+                MessageView.requestErrorText(error, "Bitte versuchen Sie es erneut.")
+            );
         }
     }
 
@@ -137,7 +139,9 @@ export class ProductController {
                 await this.reloadAllProductsList();
             }
         } catch (error) {
-            MessageView.buildError("all-products-info", `Fehler beim Löschen des Produkts: ${error.message}`);
+            MessageView.buildError("all-products-info", MessageView.requestErrorText(
+                error, "Das Produkt konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
+            ));
         } finally {
             InteractionView.setDisabled(".shop-table-scroll", false);
         }
@@ -176,8 +180,9 @@ export class ProductController {
                 await this.reloadAllProductsList();
             }
         } catch (error) {
-            MessageView.buildInputFormError("input-product-form-p",
-                `Ein Fehler ist aufgetreten: ${error.message}`);
+            MessageView.buildInputFormError("input-product-form-p", MessageView.requestErrorText(
+                error, "Das Produkt konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
+            ));
         } finally {
             InteractionView.setDisabled("#add-product", false);
         }
@@ -289,7 +294,7 @@ export class ProductController {
             } else if (error.message === "Not found") {
                 this.detailView.buildNotFound(sku);
             } else {
-                this.detailView.buildError(error.message);
+                this.detailView.buildError();
             }
         }
     }
@@ -328,8 +333,9 @@ export class ProductController {
                     `Die Produkt SKU ${sku} erfolgreich geändert!`);
             }
         } catch (error) {
-            MessageView.buildInputFormError("put-product-form-p",
-                "Konnte nicht gespeichert werden: " + error.message);
+            MessageView.buildInputFormError("put-product-form-p", MessageView.requestErrorText(
+                error, "Das Produkt konnte nicht gespeichert werden. Bitte versuchen Sie es erneut."
+            ));
         } finally {
             InteractionView.setDisabled("#put-product", false);
         }
