@@ -16,13 +16,15 @@ require_once __DIR__ . '/include/header.php';
         <p>Mit einer bestehenden SKU aktualisieren Sie das zugehörige Produkt.</p>
 
         <div class="shop-field">
-            <label for="add-product-sku">SKU</label>
+            <label for="add-product-sku">SKU <span class="sub-label">Erlaubte Sonderzeichen: - . _ ~</span></label>
+            <!-- Pattern: all alphabetical character, all numbers and -,.,_ and ~ -->
             <input
                     type="text"
                     id="add-product-sku"
                     name="sku"
                     placeholder="Bsp. ABC123"
                     maxlength="100"
+                    pattern="[A-Za-z0-9\-._~]+"
                     required
             >
             <p id="input-product-sku-p"></p>
@@ -121,7 +123,7 @@ require_once __DIR__ . '/include/header.php';
         <h2>Produkt suchen</h2>
 
         <div class="shop-field">
-            <label for="product-search-sku">Produkt nach SKU suchen</label>
+            <label for="product-search-sku">Produkt nach SKU suchen <span class="sub-label">Erlaubte Sonderzeichen: - . _ ~</span></label>
             <input
                     type="text"
                     id="product-search-sku"
@@ -129,6 +131,7 @@ require_once __DIR__ . '/include/header.php';
                     placeholder="Bsp. ABC123"
                     maxlength="100"
                     minlength="1"
+                    pattern="[A-Za-z0-9\-._~]+"
                     required
             >
             <p id="product-search-query-p"></p>

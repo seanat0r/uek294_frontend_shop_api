@@ -284,6 +284,11 @@ body {
     cursor: wait;
 }
 
+.sub-label {
+    font-size: .875rem;
+    font-weight: normal;
+}
+
 .shop-search {
     margin-top: 2rem;
 }

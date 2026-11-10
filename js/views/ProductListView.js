@@ -102,10 +102,8 @@ export class ProductListView {
     buildAllProductList(productsList, actions) {
         const productsListElement = document.querySelector('#product-list');
         productsListElement.innerHTML = '';
-
         for (const product of productsList) {
             const url = App.buildDetailUrl("product", product.sku);
-
             const htmlString =
                 `
                 <tr id="product-row-${App.escapeHTML(product.sku)}">
