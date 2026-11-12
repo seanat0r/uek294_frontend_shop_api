@@ -102,7 +102,6 @@ export class CategoryModel {
      * @returns {Promise<boolean>} Resolves to true when the API accepts the request.
      */
     async postCategory(body) {
-        console.log(body);
         const response = await fetch(API + "/category", {
             method: "POST",
             credentials: "include",
